@@ -36,11 +36,7 @@ jobs:
     # Paso 5: Crear archivo temporal para la clave PEM de EC2 desde GitHub Secret
     - name: Add EC2 PEM Key
       env:
-<<<<<<< Updated upstream
-        EC2_PEM_KEY: ${{ secrets.SMILEYCREATIONS_PEM }} # Asegúrate de definir este secreto en GitHub
-=======
         EC2_PEM_KEY: ${{ secrets.SMILEYCREATIONS_PEM }} # Define este secreto en GitHub
->>>>>>> Stashed changes
       run: |
         echo "$EC2_PEM_KEY" > ec2_key.pem
         chmod 400 ec2_key.pem
@@ -48,14 +44,6 @@ jobs:
     # Paso 6: Copiar el backend y el build del frontend a la instancia EC2
     - name: Deploy Application to EC2
       run: |
-<<<<<<< Updated upstream
-        # Enviar el backend
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend ec2-user@${{ secrets.EC2_HOST }}:/var/www/backend
-
-        # Enviar el frontend (directorio build)
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend
-
-=======
         # Crear directorios en EC2 si no existen
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "mkdir -p /var/www/backend /var/www/frontend"
 
@@ -65,30 +53,21 @@ jobs:
         # Enviar el frontend (directorio build)
         scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend
 
->>>>>>> Stashed changes
     # Paso 7: Conectar a la instancia EC2 y reiniciar el backend
     - name: Restart Backend Service on EC2
       run: |
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-<<<<<<< Updated upstream
-=======
           # Asegurarse de que PM2 esté instalado
           if ! command -v pm2 &> /dev/null; then
             npm install -g pm2
           fi
 
->>>>>>> Stashed changes
           # Navegar al backend y reiniciar con PM2
           cd /var/www/backend
           pm2 restart all || pm2 start server.js --name "backend"
 
-<<<<<<< Updated upstream
-          # Asegurarse de que el frontend está accesible si es necesario configurar el servidor web (por ejemplo, Nginx)
-          sudo systemctl restart nginx # Quita esto si no estás usando Nginx
-=======
           # Reiniciar NGINX para aplicar cambios
           sudo systemctl restart nginx
->>>>>>> Stashed changes
         EOF
 
     # Paso 8: Eliminar el archivo PEM temporal para seguridad
