@@ -43,21 +43,17 @@ jobs:
 
     # Paso 6: Copiar el backend y el build del frontend a la instancia EC2
     - name: Deploy Application to EC2
-      env:
-        EC2_PUBLIC_IP: your-ec2-public-ip # Reemplaza con la IP pública de tu instancia EC2
       run: |
         # Enviar el backend
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend ec2-user@$EC2_PUBLIC_IP:/var/www/backend
+        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend ec2-user@${{ secrets.EC2_HOST }}:/var/www/backend
 
         # Enviar el frontend (directorio build)
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build ec2-user@$EC2_PUBLIC_IP:/var/www/frontend
+        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend
 
     # Paso 7: Conectar a la instancia EC2 y reiniciar el backend
     - name: Restart Backend Service on EC2
-      env:
-        EC2_PUBLIC_IP: your-ec2-public-ip # Reemplaza con la IP pública de tu instancia EC2
       run: |
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP << 'EOF'
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
           # Navegar al backend y reiniciar con PM2
           cd /var/www/backend
           pm2 restart all || pm2 start server.js --name "backend"
