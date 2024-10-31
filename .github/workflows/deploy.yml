@@ -44,8 +44,8 @@ jobs:
     # Paso 6: Copiar el backend y el build del frontend a la instancia EC2
     - name: Deploy Application to EC2
       run: |
-        # Crear directorios en EC2 si no existen
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "mkdir -p /var/www/backend /var/www/frontend"
+        # Crear directorios en EC2 si no existen y otorgar permisos a ec2-user
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo mkdir -p /var/www/backend /var/www/frontend && sudo chown -R ec2-user:ec2-user /var/www"
 
         # Enviar el backend
         scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/backend
