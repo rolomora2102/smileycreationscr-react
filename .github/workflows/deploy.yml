@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Deploy to EC2
 
 on:
   push:
@@ -6,48 +6,66 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    # Paso 1: Chequear el código desde el repositorio
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16' # Usa la versión de Node que necesitas
+    # Paso 2: Configurar Node.js en el entorno de GitHub Actions
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16' # Cambia esto a la versión de Node que usas
 
-      - name: Install dependencies - Backend
-        working-directory: ./src/backend
-        run: npm install
+    # Paso 3: Instalar dependencias y construir el frontend
+    - name: Install and Build Frontend
+      working-directory: ./src/frontend
+      run: |
+        npm install
+        npm run build
 
-      - name: Install dependencies - Frontend
-        working-directory: ./src/frontend
-        run: npm install
+    # Paso 4: Instalar dependencias del backend
+    - name: Install Backend Dependencies
+      working-directory: ./src/backend
+      run: |
+        npm install
 
-      - name: Build Frontend
-        working-directory: ./src/frontend
-        run: npm run build
+    # Paso 5: Crear archivo temporal para la clave PEM de EC2 desde GitHub Secret
+    - name: Add EC2 PEM Key
+      env:
+        EC2_PEM_KEY: ${{ secrets.EC2_PEM_KEY }} # Asegúrate de definir este secreto en GitHub
+      run: |
+        echo "$EC2_PEM_KEY" > ec2_key.pem
+        chmod 400 ec2_key.pem
 
-      - name: Deploy to EC2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-west-2" # Cambia por tu región
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: "ec2-user" # O el usuario que uses en tu instancia EC2
-        run: |
-          # Comprimir archivos
-          zip -r deploy.zip src/
+    # Paso 6: Copiar el backend y el build del frontend a la instancia EC2
+    - name: Deploy Application to EC2
+      env:
+        EC2_PUBLIC_IP: your-ec2-public-ip # Reemplaza con la IP pública de tu instancia EC2
+      run: |
+        # Enviar el backend
+        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend ec2-user@$EC2_PUBLIC_IP:/var/www/backend
 
-          # Subir el archivo comprimido a la instancia EC2
-          scp -o StrictHostKeyChecking=no -i my-key.pem deploy.zip $EC2_USER@$EC2_HOST:~
+        # Enviar el frontend (directorio build)
+        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build ec2-user@$EC2_PUBLIC_IP:/var/www/frontend
 
-          # Conectarse a EC2 y desplegar
-          ssh -o StrictHostKeyChecking=no -i my-key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            unzip -o deploy.zip -d ~/app
-            cd ~/app/src/backend
-            npm install --production
-            pm2 restart all # O el comando necesario para reiniciar el backend
-EOF
+    # Paso 7: Conectar a la instancia EC2 y reiniciar el backend
+    - name: Restart Backend Service on EC2
+      env:
+        EC2_PUBLIC_IP: your-ec2-public-ip # Reemplaza con la IP pública de tu instancia EC2
+      run: |
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP << 'EOF'
+          # Navegar al backend y reiniciar con PM2
+          cd /var/www/backend
+          pm2 restart all || pm2 start server.js --name "backend"
+
+          # Asegurarse de que el frontend está accesible si es necesario configurar el servidor web (por ejemplo, Nginx)
+          sudo systemctl restart nginx # Quita esto si no estás usando Nginx
+        EOF
+
+    # Paso 8: Eliminar el archivo PEM temporal para seguridad
+    - name: Clean Up
+      run: rm -f ec2_key.pem
