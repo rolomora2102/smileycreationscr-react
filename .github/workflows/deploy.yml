@@ -36,7 +36,7 @@ jobs:
     # Paso 5: Crear archivo temporal para la clave PEM de EC2 desde GitHub Secret
     - name: Add EC2 PEM Key
       env:
-        EC2_PEM_KEY: ${{ secrets.EC2_PEM_KEY }} # Asegúrate de definir este secreto en GitHub
+        EC2_PEM_KEY: ${{ secrets.SMILEYCREATIONS_PEM }} # Asegúrate de definir este secreto en GitHub
       run: |
         echo "$EC2_PEM_KEY" > ec2_key.pem
         chmod 400 ec2_key.pem
