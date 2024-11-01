@@ -4,11 +4,11 @@ import { Box, Grid, MenuItem, Select, FormControl, InputLabel, CircularProgress,
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import ProductFormModal from '../../components/ProductForm/ProductFormModal'; // Importamos el modal de formulario
+import ProductFormModal from '../../components/ProductForm/ProductFormModal';
 import { getFilteredProducts, getProductTypes, deleteProduct } from '../../services/productService';
 import { useLocation } from 'react-router-dom';
 
-function Home({ isAdmin }) { 
+function Home({ isAdmin }) {
   const [products, setProducts] = useState([]);
   const [tipos, setTipos] = useState([]);
   const [tipo, setTipo] = useState('');
@@ -18,9 +18,7 @@ function Home({ isAdmin }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const location = useLocation();
 
-  // Cargar productos según el filtro
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -33,11 +31,9 @@ function Home({ isAdmin }) {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, [tipo, orderBy, orderDirection]);
 
-  // Cargar los tipos de productos desde el backend
   useEffect(() => {
     const fetchTypes = async () => {
       try {
@@ -47,16 +43,8 @@ function Home({ isAdmin }) {
         console.error('Error obteniendo tipos de productos:', error);
       }
     };
-
     fetchTypes();
   }, []);
-
-  // Actualizar el tipo al cambiar la URL
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const newTipo = params.get('tipo') || '';
-    setTipo(newTipo);
-  }, [location]);
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -81,7 +69,6 @@ function Home({ isAdmin }) {
   const handleFormSave = () => {
     setShowFormModal(false);
     setEditingProduct(null);
-    // Recargar los productos después de agregar/editar
     const fetchProducts = async () => {
       const data = await getFilteredProducts(tipo, orderBy, orderDirection);
       setProducts(data);
@@ -101,18 +88,20 @@ function Home({ isAdmin }) {
         padding: 3,
       }}
     >
-      {/* Botón para abrir filtros en móvil */}
-      <Button
-        variant="outlined"
-        startIcon={<FilterListIcon />}
-        onClick={toggleDrawer(true)}
-        sx={{ display: { xs: 'block', sm: 'none' }, mb: 2 }}
-      >
-        Filtros
-      </Button>
+      {/* Contenedor flexible para alinear el botón de filtro a la derecha */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mb: 2 }}>
+        {/* Botón para abrir filtros en móvil y escritorio */}
+        <Button
+          variant="outlined"
+          startIcon={<FilterListIcon />}
+          onClick={toggleDrawer(true)}
+        >
+          Filtros
+        </Button>
+      </Box>
 
-      {/* Drawer para filtros en móvil */}
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
+      {/* Drawer para filtros en móvil (ancla izquierda) */}
+      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)} sx={{ display: { xs: 'block', sm: 'none' } }}>
         <Box sx={{ width: 250, p: 2 }}>
           <IconButton onClick={toggleDrawer(false)}>
             <CloseIcon />
@@ -149,19 +138,51 @@ function Home({ isAdmin }) {
         </Box>
       </Drawer>
 
-      {/* Botón de agregar producto solo visible para admin */}
+      {/* Drawer para filtros en escritorio (ancla derecha) */}
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)} sx={{ display: { xs: 'none', sm: 'block' } }}>
+        <Box sx={{ width: 250, p: 2 }}>
+          <IconButton onClick={toggleDrawer(false)}>
+            <CloseIcon />
+          </IconButton>
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel>Tipo</InputLabel>
+            <Select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+              <MenuItem value="">Todos</MenuItem>
+              {tipos.map((tipo) => (
+                <MenuItem key={tipo} value={tipo}>
+                  {tipo}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel>Ordenar por</InputLabel>
+            <Select value={orderBy} onChange={(e) => setOrderBy(e.target.value)}>
+              <MenuItem value="">Ninguno</MenuItem>
+              <MenuItem value="name">Nombre</MenuItem>
+              <MenuItem value="price">Precio</MenuItem>
+              <MenuItem value="tipo">Tipo</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel>Dirección</InputLabel>
+            <Select value={orderDirection} onChange={(e) => setOrderDirection(e.target.value)}>
+              <MenuItem value="ASC">Ascendente</MenuItem>
+              <MenuItem value="DESC">Descendente</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </Drawer>
+
+      {/* Productos y botones administrativos */}
       {isAdmin && (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleAddProduct}
-          sx={{ mb: 2 }}
-        >
+        <Button variant="contained" color="primary" onClick={handleAddProduct} sx={{ mb: 2 }}>
           Agregar Producto
         </Button>
       )}
-
-      {/* Estado de carga */}
+      
       {loading ? (
         <CircularProgress color="primary" />
       ) : (
@@ -179,7 +200,6 @@ function Home({ isAdmin }) {
         </Grid>
       )}
 
-      {/* Modal para agregar/editar producto */}
       {isAdmin && (
         <ProductFormModal
           open={showFormModal}

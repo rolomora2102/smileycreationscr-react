@@ -1,4 +1,3 @@
-// src/components/Navbar/Navbar.js
 import React, { useEffect, useState } from 'react';
 import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Menu, MenuItem, Badge, Button, Snackbar } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -14,20 +13,25 @@ function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { notification, closeNotification, getTotalItems } = useCart();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [tipos, setTipos] = useState([]);
+  const [tipos, setTipos] = useState([]); // Inicializado como un array vacío
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTypes = async () => {
       try {
         const tiposData = await getProductTypes();
-        setTipos(tiposData);
+        console.log("Tipos obtenidos:", tiposData); // Log para ver la respuesta de la API
+        setTipos(Array.isArray(tiposData) ? tiposData : []);
       } catch (error) {
         console.error('Error obteniendo tipos de productos:', error);
+        setTipos([]); // Si ocurre un error, mantén `tipos` como un array vacío
       }
     };
     fetchTypes();
   }, []);
+
+  // Log para verificar el contenido de `tipos` antes de renderizar
+  console.log("Estado de tipos:", tipos);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -71,24 +75,6 @@ function Navbar() {
           >
             <MenuIcon />
           </IconButton>
-
-          {/* Filtro de tipo y carrito en vista de escritorio */}
-          <Button
-            color="inherit"
-            aria-controls="simple-menu"
-            aria-haspopup="true"
-            onClick={handleMenuOpen}
-            sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
-          >
-            Filtrar por Tipo
-          </Button>
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-            {tipos.map((tipo) => (
-              <MenuItem key={tipo} onClick={() => handleFilterByType(tipo)}>
-                {tipo}
-              </MenuItem>
-            ))}
-          </Menu>
           <Button
             color="inherit"
             onClick={() => setCartOpen(true)}
