@@ -22,34 +22,25 @@ jobs:
         echo "$EC2_PEM_KEY" > ec2_key.pem
         chmod 400 ec2_key.pem
 
-    # Paso 3: Copiar el backend y el frontend sin comprimir a la instancia EC2
+    # Paso 3: Copiar el backend y solo el build del frontend a la instancia EC2
     - name: Deploy Application to EC2
       run: |
         # Crear directorios en EC2 y transferir archivos
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo rm -rf /var/www/backend /var/www/frontend && sudo mkdir -p /var/www/backend /var/www/frontend && sudo chown -R ec2-user:ec2-user /var/www"
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo rm -rf /var/www/backend /var/www/frontend_deploy && sudo mkdir -p /var/www/backend /var/www/frontend_deploy && sudo chown -R ec2-user:ec2-user /var/www"
         
-        # Copiar el backend y frontend completos
+        # Copiar el backend completo
         scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/backend
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend
+
+        # Copiar solo el contenido del build del frontend
+        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend_deploy
     
-    # Paso 4: Conectar a la instancia EC2 y ejecutar el build y las instalaciones necesarias
-    - name: Build and Install on EC2
+    # Paso 4: Conectar a la instancia EC2 y ejecutar la instalación en el backend
+    - name: Install Backend Dependencies on EC2
       run: |
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
           # Cambiar al directorio del backend e instalar dependencias
           cd /var/www/backend
           npm install --production
-
-          # Cambiar al directorio del frontend, instalar dependencias y construir el build
-          cd /var/www/frontend
-          npm install
-          npm run build
-
-          # Mover el build del frontend a la ubicación de despliegue
-          mv /var/www/frontend/build /var/www/frontend_deploy
-
-          # Reiniciar NGINX para servir el nuevo frontend
-          sudo systemctl restart nginx
         EOF
 
     # Paso 5: Conectar a la instancia EC2 y reiniciar el backend
@@ -66,6 +57,13 @@ jobs:
           pm2 restart backend || pm2 start server.js --name "backend"
         EOF
 
-    # Paso 6: Eliminar el archivo PEM temporal para seguridad
+    # Paso 6: Reiniciar NGINX para servir el nuevo build del frontend
+    - name: Restart NGINX
+      run: |
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+          sudo systemctl restart nginx
+        EOF
+
+    # Paso 7: Eliminar el archivo PEM temporal para seguridad
     - name: Clean Up
       run: rm -f ec2_key.pem
