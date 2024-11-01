@@ -6,12 +6,12 @@ const clientRoutes = require('./clientRoutes');
 const productImageRoutes = require('./productImageRoutes');
 
 // Usar las rutas de productos en /api/productos
-router.use('/productos', productRoutes);
+router.use('/api/productos', productRoutes);
 
 // Usar las rutas de clientes en /api/clientes
-router.use('/clientes', clientRoutes);
+router.use('/api/clientes', clientRoutes);
 
 // Usar las rutas de imágenes de productos en /api/productos/:productId/images
-router.use('/productos', productImageRoutes);
+router.use('/api/productos', productImageRoutes);
 
 module.exports = router;
