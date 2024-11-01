@@ -44,8 +44,8 @@ jobs:
     # Paso 6: Copiar el backend y el build del frontend a la instancia EC2
     - name: Deploy Application to EC2
       run: |
-        # Comprimir solo el backend y el build del frontend
-        zip -r backend.zip ./src/backend -x "*/node_modules/*"
+        # Comprimir solo el contenido de backend y el build del frontend
+        zip -r backend.zip ./src/backend/* -x "*/node_modules/*"
         zip -r frontend.zip ./src/frontend/build
     
         # Crear directorios en EC2 y transferir los archivos comprimidos
