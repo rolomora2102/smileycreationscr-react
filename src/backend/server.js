@@ -1,17 +1,22 @@
-// backend/server.js
+// server.js
 const express = require('express');
-const cors = require('cors'); // Importa el paquete cors
+const cors = require('cors');
 const app = express();
 const PORT = 3001;
 
-// Configurar CORS para permitir solicitudes desde http://localhost:3000
+// Configuración de CORS (ajusta el origen según tu necesidad)
 app.use(cors({
-  origin: 'http://localhost:3000' // Reemplaza con el origen del frontend
+  origin: 'http://localhost:3000' // Reemplaza con el origen del frontend en producción
 }));
 
 app.use(express.json());
 
-// Configuración de rutas
+// Ruta de health check
+app.get('/health', (req, res) => {
+  res.status(200).send('Healthy');
+});
+
+// Configuración de rutas de la API
 const routes = require('./src/routes');
 app.use('/api', routes);
 
