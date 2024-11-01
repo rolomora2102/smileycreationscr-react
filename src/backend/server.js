@@ -4,10 +4,12 @@ const cors = require('cors');
 const app = express();
 const PORT = 3001;
 
-// Configuración de CORS (ajusta el origen según tu necesidad)
-app.use(cors({
-  origin: 'http://localhost:3000' // Reemplaza con el origen del frontend en producción
-}));
+const api = axios.create({
+  baseURL: process.env.NODE_ENV === 'production' ? 'https://smileycreationscr.com/api' : 'http://localhost:3001/api'
+});
+
+export default api;
+
 
 app.use(express.json());
 
