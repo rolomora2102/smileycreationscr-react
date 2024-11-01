@@ -25,7 +25,7 @@ jobs:
       working-directory: ./src/frontend
       run: |
         npm install
-        npm run build
+        npm run build --force
 
     # Paso 4: Instalar dependencias del backend
     - name: Install Backend Dependencies
