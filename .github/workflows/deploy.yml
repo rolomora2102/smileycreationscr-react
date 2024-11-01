@@ -44,12 +44,12 @@ jobs:
     # Paso 6: Copiar el backend y el build del frontend a la instancia EC2
     - name: Deploy Application to EC2
       run: |
-        # Comprimir backend y frontend
+        # Comprimir solo el backend y el build del frontend
         zip -r backend.zip ./src/backend -x "*/node_modules/*"
         zip -r frontend.zip ./src/frontend/build
     
         # Crear directorios en EC2 y transferir los archivos comprimidos
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo mkdir -p /var/www/backend /var/www/frontend && sudo chown -R ec2-user:ec2-user /var/www"
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo rm -rf /var/www/backend /var/www/frontend && sudo mkdir -p /var/www/backend /var/www/frontend && sudo chown -R ec2-user:ec2-user /var/www"
         scp -i ec2_key.pem -o StrictHostKeyChecking=no backend.zip ec2-user@${{ secrets.EC2_HOST }}:/var/www
         scp -i ec2_key.pem -o StrictHostKeyChecking=no frontend.zip ec2-user@${{ secrets.EC2_HOST }}:/var/www
     
@@ -57,10 +57,11 @@ jobs:
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
           cd /var/www
     
-          # Descomprimir backend y frontend
+          # Eliminar contenido anterior y descomprimir backend y frontend
+          rm -rf backend/* frontend/*
           unzip -o backend.zip -d backend
           unzip -o frontend.zip -d frontend
-    
+
           # Instalar dependencias en backend y limpiar archivos zip
           cd backend
           npm install --production
