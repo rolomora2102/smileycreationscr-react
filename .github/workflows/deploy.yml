@@ -14,26 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Paso 2: Configurar Node.js en el entorno de GitHub Actions
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20.18.0' # Usando la versión 20.18.0 de Node.js
-
-    # Paso 3: Instalar dependencias y construir el frontend
-    - name: Install and Build Frontend
-      working-directory: ./src/frontend
-      run: |
-        npm install
-        CI=false npm run build
-
-    # Paso 4: Instalar dependencias del backend
-    - name: Install Backend Dependencies
-      working-directory: ./src/backend
-      run: |
-        npm install
-
-    # Paso 5: Crear archivo temporal para la clave PEM de EC2 desde GitHub Secret
+    # Paso 2: Crear archivo temporal para la clave PEM de EC2 desde GitHub Secret
     - name: Add EC2 PEM Key
       env:
         EC2_PEM_KEY: ${{ secrets.SMILEYCREATIONS_PEM }}
@@ -41,34 +22,37 @@ jobs:
         echo "$EC2_PEM_KEY" > ec2_key.pem
         chmod 400 ec2_key.pem
 
-    # Paso 6: Copiar el backend y el build del frontend a la instancia EC2
+    # Paso 3: Copiar el backend y el frontend sin comprimir a la instancia EC2
     - name: Deploy Application to EC2
       run: |
-        # Comprimir solo el contenido de backend y el build del frontend
-        zip -r backend.zip ./src/backend/* -x "*/node_modules/*"
-        zip -r frontend.zip ./src/frontend/build
-    
-        # Crear directorios en EC2 y transferir los archivos comprimidos
+        # Crear directorios en EC2 y transferir archivos
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo rm -rf /var/www/backend /var/www/frontend && sudo mkdir -p /var/www/backend /var/www/frontend && sudo chown -R ec2-user:ec2-user /var/www"
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no backend.zip ec2-user@${{ secrets.EC2_HOST }}:/var/www
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no frontend.zip ec2-user@${{ secrets.EC2_HOST }}:/var/www
+        
+        # Copiar el backend y frontend completos
+        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/backend
+        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend
     
-        # Conectar a la instancia, descomprimir y limpiar
+    # Paso 4: Conectar a la instancia EC2 y ejecutar el build y las instalaciones necesarias
+    - name: Build and Install on EC2
+      run: |
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-          cd /var/www
-    
-          # Eliminar contenido anterior y descomprimir backend y frontend
-          rm -rf backend/* frontend/*
-          unzip -o backend.zip -d backend
-          unzip -o frontend.zip -d frontend
-
-          # Instalar dependencias en backend y limpiar archivos zip
-          cd backend
+          # Cambiar al directorio del backend e instalar dependencias
+          cd /var/www/backend
           npm install --production
-          rm ../backend.zip ../frontend.zip
+
+          # Cambiar al directorio del frontend, instalar dependencias y construir el build
+          cd /var/www/frontend
+          npm install
+          npm run build
+
+          # Mover el build del frontend a la ubicación de despliegue
+          mv /var/www/frontend/build /var/www/frontend_deploy
+
+          # Reiniciar NGINX para servir el nuevo frontend
+          sudo systemctl restart nginx
         EOF
 
-    # Paso 7: Conectar a la instancia EC2 y reiniciar el backend
+    # Paso 5: Conectar a la instancia EC2 y reiniciar el backend
     - name: Restart Backend Service on EC2
       run: |
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
@@ -80,11 +64,8 @@ jobs:
           # Navegar al backend y reiniciar con PM2
           cd /var/www/backend
           pm2 restart backend || pm2 start server.js --name "backend"
-
-          # Reiniciar NGINX para aplicar cambios
-          sudo systemctl restart nginx
         EOF
 
-    # Paso 8: Eliminar el archivo PEM temporal para seguridad
+    # Paso 6: Eliminar el archivo PEM temporal para seguridad
     - name: Clean Up
       run: rm -f ec2_key.pem
