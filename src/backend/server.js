@@ -1,12 +1,16 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = 3001;
 
 // Configuración de CORS
+
+// change to 'http://localhost:3000' for Local dev
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' ? 'https://smileycreationscr.com' : 'http://localhost:3000'
 }));
+console.log(process.env.NODE_ENV)
 
 app.use(express.json());
 
