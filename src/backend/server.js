@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const axios = require('axios');
 const app = express();
 const PORT = 3001;
 
@@ -8,11 +7,6 @@ const PORT = 3001;
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' ? 'https://smileycreationscr.com' : 'http://localhost:3000'
 }));
-
-// Configuración de axios para la API
-const api = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' ? 'https://smileycreationscr.com/api' : 'http://localhost:3001/api'
-});
 
 app.use(express.json());
 
@@ -29,5 +23,3 @@ app.use('/api', routes);
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });
-
-module.exports = api
