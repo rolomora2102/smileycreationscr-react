@@ -14,9 +14,6 @@ const api = axios.create({
   baseURL: process.env.NODE_ENV === 'production' ? 'https://smileycreationscr.com/api' : 'http://localhost:3001/api'
 });
 
-// Si necesitas exportar `api` para otros módulos, puedes hacer esto:
-// module.exports = api;
-
 app.use(express.json());
 
 // Ruta de health check
@@ -32,3 +29,5 @@ app.use('/api', routes);
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });
+
+module.exports = api
