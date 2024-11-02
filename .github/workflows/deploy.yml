@@ -61,18 +61,20 @@ jobs:
     - name: Add environment variables on EC2
       run: |
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> /var/www/backend/.env
-          echo "DB_USER=${{ secrets.DB_USER }}" >> /var/www/backend/.env
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> /var/www/backend/.env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> /var/www/backend/.env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> /var/www/backend/.env
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /var/www/backend/.env
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /var/www/backend/.env
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> /var/www/backend/.env
-          echo "S3_MAIN_BUCKET_NAME=${{ secrets.S3_MAIN_BUCKET_NAME }}" >> /var/www/backend/.env
-          echo "S3_ADDITIONAL_BUCKET_NAME=${{ secrets.S3_ADDITIONAL_BUCKET_NAME }}" >> /var/www/backend/.env
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> /var/www/backend/.env
-          echo "JWT_SECRET"=${{ secrets.JWT_SECRET }}" >> /var/www/backend/.env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> /var/www/backend/.env
+          echo DB_USER=${{ secrets.DB_USER }} >> /var/www/backend/.env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> /var/www/backend/.env
+          echo DB_PORT=${{ secrets.DB_PORT }} >> /var/www/backend/.env
+          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> /var/www/backend/.env
+          echo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} >> /var/www/backend/.env
+          echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> /var/www/backend/.env
+          echo AWS_REGION=${{ secrets.AWS_REGION }} >> /var/www/backend/.env
+          echo S3_MAIN_BUCKET_NAME=${{ secrets.S3_MAIN_BUCKET_NAME }} >> /var/www/backend/.env
+          echo S3_ADDITIONAL_BUCKET_NAME=${{ secrets.S3_ADDITIONAL_BUCKET_NAME }} >> /var/www/backend/.env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> /var/www/backend/.env
+          echo COGNITO_USER_POOL=${{ secrets.COGNITO_USER_POOL }} >> /var/www/backend/.env
+          echo COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }} >> /var/www/backend/.env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> /var/www/backend/.env
         EOF
 
     # Paso 7: Conectar a la instancia EC2 y ejecutar la instalación en el backend
