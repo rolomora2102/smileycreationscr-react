@@ -15,7 +15,8 @@ function Login() {
       // Llama a login para autenticar y guardar el token
       const success = await login(username, password);
       if (success) {
-        window.location.href = "https://smileycreationscr.com";
+        console.log("Redirigiendo a la página principal"); // Log antes de redirigir
+        window.location.href = "https://smileycreationscr.com"; // Redirige a prod
       }
       // navigate('/'); // Redirige al usuario a la página principal /Local
     } catch (err) {
