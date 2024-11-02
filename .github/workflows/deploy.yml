@@ -10,103 +10,95 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Paso 1: Chequear el código desde el repositorio
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # Step 1: Check out the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # Paso 2: Configurar Node.js en el entorno de GitHub Actions
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20.18.0' # Usando la versión 20.18.0 de Node.js
+      # Step 2: Set up Node.js in the GitHub Actions environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20.18.0'
 
-    # Paso 3: Instalar dependencias y construir el frontend en GitHub Actions
-    - name: Install and Build Frontend
-      working-directory: ./src/frontend
-      run: |
-        npm install
-        CI=false npm run build
+      # Step 3: Install dependencies and build the main frontend (assuming it's in `src/frontend`)
+      - name: Install and Build Main Frontend
+        working-directory: ./src/frontend
+        run: |
+          npm install
+          npm run build
 
-    # Paso 3b: Instalar dependencias y construir el frontend de login
-    - name: Install and Build Login Frontend
-      working-directory: ./src/login
-      run: |
-        npm install
-        CI=false npm run build
+      # Step 4: Install dependencies and build the backend frontend (if applicable)
+      # If you have a separate frontend build under `src/backend/frontend`, you can add this step
+      - name: Install and Build Backend Frontend (if applicable)
+        working-directory: ./src/backend/frontend
+        run: |
+          npm install
+          npm run build
 
-    # Paso 4: Crear archivo temporal para la clave PEM de EC2 desde GitHub Secret
-    - name: Add EC2 PEM Key
-      env:
-        EC2_PEM_KEY: ${{ secrets.SMILEYCREATIONS_PEM }}
-      run: |
-        echo "$EC2_PEM_KEY" > ec2_key.pem
-        chmod 400 ec2_key.pem
+      # Step 5: Create a temporary PEM file for the EC2 key from GitHub Secret
+      - name: Add EC2 PEM Key
+        env:
+          EC2_PEM_KEY: ${{ secrets.SMILEYCREATIONS_PEM }}
+        run: |
+          echo "$EC2_PEM_KEY" > ec2_key.pem
+          chmod 400 ec2_key.pem
 
-    # Paso 5: Copiar el backend y solo el build del frontend a la instancia EC2
-    - name: Deploy Application to EC2
-      run: |
-        # Crear directorios en EC2 y transferir archivos
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo rm -rf /var/www/backend /var/www/frontend_deploy && sudo mkdir -p /var/www/backend /var/www/frontend_deploy && sudo chown -R ec2-user:ec2-user /var/www"
-        
-        # Copiar el backend completo
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/backend
+      # Step 6: Copy backend and main frontend build to the EC2 instance
+      - name: Deploy Application to EC2
+        run: |
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo rm -rf /var/www/backend /var/www/frontend_deploy && sudo mkdir -p /var/www/backend /var/www/frontend_deploy && sudo chown -R ec2-user:ec2-user /var/www"
 
-        # Copiar solo el contenido del build del frontend
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend_deploy
+          # Copy backend
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/backend
 
-        # Copiar solo el contenido del build del login frontend
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/login/build/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/login_deploy
+          # Copy main frontend build
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend_deploy
 
-    # Paso 6: Crear el archivo .env en el servidor EC2 usando los secretos de GitHub
-    - name: Add environment variables on EC2
-      run: |
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> /var/www/backend/.env
-          echo "DB_USER=${{ secrets.DB_USER }}" >> /var/www/backend/.env
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> /var/www/backend/.env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> /var/www/backend/.env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> /var/www/backend/.env
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /var/www/backend/.env
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /var/www/backend/.env
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> /var/www/backend/.env
-          echo "S3_MAIN_BUCKET_NAME=${{ secrets.S3_MAIN_BUCKET_NAME }}" >> /var/www/backend/.env
-          echo "S3_ADDITIONAL_BUCKET_NAME=${{ secrets.S3_ADDITIONAL_BUCKET_NAME }}" >> /var/www/backend/.env
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> /var/www/backend/.env
-          echo "COGNITO_USER_POOL=${{ secrets.COGNITO_USER_POOL }}" >> /var/www/backend/.env
-          echo "COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }}" >> /var/www/backend/.env
-          echo "JWT_SECRET"=${{ secrets.JWT_SECRET }}" >> /var/www/backend/.env
-        EOF
+      # Step 7: Create the .env file on EC2 using GitHub Secrets
+      - name: Add environment variables on EC2
+        run: |
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            echo "DB_HOST=${{ secrets.DB_HOST }}" >> /var/www/backend/.env
+            echo "DB_USER=${{ secrets.DB_USER }}" >> /var/www/backend/.env
+            echo "DB_NAME=${{ secrets.DB_NAME }}" >> /var/www/backend/.env
+            echo "DB_PORT=${{ secrets.DB_PORT }}" >> /var/www/backend/.env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> /var/www/backend/.env
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /var/www/backend/.env
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /var/www/backend/.env
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> /var/www/backend/.env
+            echo "S3_MAIN_BUCKET_NAME=${{ secrets.S3_MAIN_BUCKET_NAME }}" >> /var/www/backend/.env
+            echo "S3_ADDITIONAL_BUCKET_NAME=${{ secrets.S3_ADDITIONAL_BUCKET_NAME }}" >> /var/www/backend/.env
+            echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> /var/www/backend/.env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> /var/www/backend/.env
+          EOF
 
-    # Paso 7: Conectar a la instancia EC2 y ejecutar la instalación en el backend
-    - name: Install Backend Dependencies on EC2
-      run: |
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-          # Cambiar al directorio del backend e instalar dependencias
-          cd /var/www/backend
-          npm install --production
-        EOF
+      # Step 8: Install backend dependencies on EC2
+      - name: Install Backend Dependencies on EC2
+        run: |
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /var/www/backend
+            npm install --production
+          EOF
 
-    # Paso 8: Conectar a la instancia EC2 y reiniciar el backend
-    - name: Restart Backend Service on EC2
-      run: |
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-          # Asegurarse de que PM2 esté instalado
-          if ! command -v pm2 &> /dev/null; then
-            npm install -g pm2
-          fi
+      # Step 9: Restart the backend service on EC2
+      - name: Restart Backend Service on EC2
+        run: |
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            if ! command -v pm2 &> /dev/null; then
+              npm install -g pm2
+            fi
 
-          # Navegar al backend y reiniciar con PM2
-          cd /var/www/backend
-          pm2 restart backend || pm2 start server.js --name "backend"
-        EOF
+            cd /var/www/backend
+            pm2 restart backend || pm2 start server.js --name "backend"
+          EOF
 
-    # Paso 9: Reiniciar NGINX para servir el nuevo build del frontend
-    - name: Restart NGINX
-      run: |
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-          sudo systemctl restart nginx
-        EOF
+      # Step 10: Restart NGINX to serve the new frontend build
+      - name: Restart NGINX
+        run: |
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            sudo systemctl restart nginx
+          EOF
 
-    # Paso 10: Eliminar el archivo PEM temporal para seguridad
-    - name: Clean Up
-      run: rm -f ec2_key.pem
+      # Step 11: Clean up the temporary PEM file for security
+      - name: Clean Up
+        run: rm -f ec2_key.pem
