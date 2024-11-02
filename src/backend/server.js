@@ -9,7 +9,7 @@ const PORT = 3001;
 
 // change to 'http://localhost:3000' for Local dev
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://smileycreationscr.com' : 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' ? ['https://smileycreationscr.com', 'https://admin.smileycreationscr.com'] : 'http://localhost:3000',
   credentials: true
 }));
 
