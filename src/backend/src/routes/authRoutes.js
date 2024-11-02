@@ -30,6 +30,7 @@ router.post('/', async (req, res) => {
         secure: true,     // Solo HTTPS en producción
         sameSite: 'Strict' // Protección contra CSRF
       });
+      console.log('Una respuesta: ', res.json, res)
       res.json({ message: 'Autenticación exitosa' });
     } else {
       // En desarrollo, devolver el token en el JSON para almacenarlo en localStorage
