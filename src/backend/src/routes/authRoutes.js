@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
       res.cookie('token', token, {
         httpOnly: true,   // Evita el acceso desde JavaScript en el frontend
         secure: true,     // Solo HTTPS en producción
-        sameSite: 'Strict' // Protección contra CSRF
+        sameSite: 'none' // Protección contra CSRF
       });
       console.log('Una respuesta: ', res.json, res)
       res.json({ message: 'Autenticación exitosa' });

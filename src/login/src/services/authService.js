@@ -3,7 +3,7 @@ import api from './api';
 // Función para guardar el token de forma segura
 export const storeToken = (token) => {
     if (process.env.NODE_ENV === 'production') {
-      document.cookie = `token=${token}; path=/; Secure; HttpOnly; SameSite=Strict`;
+      document.cookie = `token=${token}; path=/; Secure; HttpOnly; SameSite=none`;
     } else {
       localStorage.setItem('adminToken', token);
     }
