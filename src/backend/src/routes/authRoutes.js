@@ -48,7 +48,7 @@ const verifyToken = (req, res) => {
   try {
     // Intenta leer el token de la cookie (producción)
     let token = req.cookies.token;
-    console.log('un token: ', token)
+    console.log('Una cookie: ', token)
 
     // Si no está en la cookie, intenta leerlo del encabezado de autorización (desarrollo)
     if (!token && req.headers.authorization) {
