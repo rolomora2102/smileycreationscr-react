@@ -14,6 +14,7 @@ function Login() {
     try {
       // Llama a login para autenticar y guardar el token
       const success = await login(username, password);
+      console.log("Login exitoso");
       if (success) {
         console.log("Redirigiendo a la página principal"); // Log antes de redirigir
         window.location.href = "https://smileycreationscr.com"; // Redirige a prod
