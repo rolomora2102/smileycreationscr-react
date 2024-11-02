@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const app = express();
 const PORT = 3001;
@@ -8,11 +9,12 @@ const PORT = 3001;
 
 // change to 'http://localhost:3000' for Local dev
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://smileycreationscr.com' : 'http://localhost:3000'
+  origin: process.env.NODE_ENV === 'production' ? 'https://smileycreationscr.com' : 'http://localhost:3000',
+  credentials: true
 }));
-console.log(process.env.NODE_ENV)
 
 app.use(express.json());
+app.use(cookieParser()); // Importante: esto debe estar antes de las rutas
 
 // Ruta de health check
 app.get('/health', (req, res) => {

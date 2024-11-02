@@ -1,31 +1,21 @@
-// backend/middleware/verifyAdmin.js
-const { CognitoJwtVerifier } = require("aws-jwt-verify");
-const CognitoConfig = require("../config/cognitoConfig");
+const jwt = require('jsonwebtoken');
 
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: CognitoConfig.UserPoolId,
-  clientId: CognitoConfig.ClientId,
-  tokenUse: "id",
-});
+const verifyAdmin = (req, res, next) => {
+  // Intenta leer el token de la cookie (producción)
+  let token = req.cookies.token;
 
-const verifyAdmin = async (req, res, next) => {
+  // Si no está en la cookie, intenta leerlo del encabezado de autorización (desarrollo)
+  if (!token && req.headers.authorization) {
+    token = req.headers.authorization.split(' ')[1]; // Elimina el prefijo "Bearer" si está presente
+  }
+
+  if (!token) {
+    return res.status(401).json({ message: "Token no proporcionado" });
+  }
+
   try {
-    // if (process.env.NODE_ENV === 'development') {
-    //   // En entorno de desarrollo, permite acceso directo
-    //   req.user = { isAdmin: true };
-    //   return next();
-    // }
-
-    const token = req.headers.authorization;
-    if (!token) {
-      return res.status(401).json({ message: "Token no proporcionado" });
-    }
-
-    // Verificar el token en producción
-    const payload = await verifier.verify(token);
-    console.log("Token verificado, payload:", payload);
-
-    req.user = payload;
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = payload; // payload contiene los datos del usuario si el token es válido
     next();
   } catch (error) {
     console.error("Error al verificar el token:", error);

@@ -4,6 +4,7 @@ const router = express.Router();
 const productRoutes = require('./productRoutes');
 const clientRoutes = require('./clientRoutes');
 const productImageRoutes = require('./productImageRoutes');
+const authRoutes = require('./authRoutes');
 
 // Usar las rutas de productos en /api/productos
 router.use('/productos', productRoutes);
@@ -13,5 +14,7 @@ router.use('/clientes', clientRoutes);
 
 // Usar las rutas de imágenes de productos en /api/productos/:productId/images
 router.use('/productos', productImageRoutes);
+
+router.use('/login', authRoutes);
 
 module.exports = router;

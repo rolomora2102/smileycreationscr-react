@@ -5,7 +5,7 @@ import { useCart } from '../../contexts/CartContext';
 import { Link } from 'react-router-dom';
 import ProductFormModal from '../ProductForm/ProductFormModal';
 
-function ProductCard({ product, onDelete, onEdit, isAdmin = false }) {
+function ProductCard({ product, onDelete, onEdit, isAdmin }) {
   const { addToCart } = useCart();
   const [isEditModalOpen, setEditModalOpen] = useState(false);
 

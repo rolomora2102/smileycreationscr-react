@@ -10,12 +10,9 @@ import OrderConfirmation from './pages/OrderConfirmation/OrderConfirmation';
 import { CartProvider } from './contexts/CartContext';
 import AdminCustomers from './pages/AdminCustomers/AdminCustomers';
 import ProductDetails from './pages/ProductDetails/ProductDetails';
-
-const isAdmin = process.env.REACT_APP_IS_ADMIN === 'true'; // Convierte la variable en booleano
+import Login from './components/AdminLogin/Login';
 
 function App() {
-  console.log("isAdmin:", isAdmin); // Verifica el valor de isAdmin
-
   return (
     <ThemeProvider theme={theme}>
       <CartProvider>
@@ -23,12 +20,13 @@ function App() {
         <Router>
           <Navbar />
           <Routes>
-            <Route path="/" element={<Home isAdmin={isAdmin} />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
-            {isAdmin && <Route path="/admin/clientes" element={<AdminCustomers />} />}
-            <Route path="/producto/:id" element={<ProductDetails />} />
-            {isAdmin && <Route path="/clientes" element={<AdminCustomers />} />}
+            <Route path="/admin/clientes" element={<AdminCustomers />} /> 
+            <Route path="/producto/:id" element={<ProductDetails />} /> 
+            <Route path="/clientes" element={<AdminCustomers />} />
           </Routes>
           <Footer />
         </Router>

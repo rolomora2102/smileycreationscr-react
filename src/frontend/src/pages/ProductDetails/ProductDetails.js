@@ -6,8 +6,10 @@ import { getProductById, getProductImages, uploadProductImage, deleteProductImag
 import { useCart } from '../../contexts/CartContext';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { verifyToken } from '../../services/authService';
 
-function ProductDetails({ isAdmin = true }) { 
+function ProductDetails() { 
+  const [isAdmin, setIsAdmin] = useState(false);
   const { id } = useParams();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
@@ -19,27 +21,33 @@ function ProductDetails({ isAdmin = true }) {
   const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const checkAdminStatus = async () => {
       try {
-        const data = await getProductById(id);
-        setProduct(data);
+        const adminStatus = await verifyToken();
+        setIsAdmin(adminStatus);
+      } catch (error) {
+        console.error('Error verificando estado de admin:', error);
+        setIsAdmin(false);
+      }
+    };
+    checkAdminStatus();
+  }, []);
+
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        const productData = await getProductById(id);
+        setProduct(productData);
+
+        const imageList = await getProductImages(id);
+        setImages(imageList);
+        if (imageList.length > 0) setMainImage(imageList[0].image_url);
       } catch (error) {
         console.error('Error obteniendo detalles del producto:', error);
       }
     };
 
-    const fetchImages = async () => {
-      try {
-        const imageList = await getProductImages(id);
-        setImages(imageList);
-        if (imageList.length > 0) setMainImage(imageList[0].image_url);
-      } catch (error) {
-        console.error('Error obteniendo imágenes del producto:', error);
-      }
-    };
-
-    fetchProduct();
-    fetchImages();
+    fetchProductDetails();
   }, [id]);
 
   const handleThumbnailClick = (imageUrl) => {

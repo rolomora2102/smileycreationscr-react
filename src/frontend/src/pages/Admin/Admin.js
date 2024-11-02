@@ -4,19 +4,46 @@ import { Box, Grid, Button, Typography } from '@mui/material';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import ProductFormModal from '../../components/ProductForm/ProductFormModal';
 import { getProducts, deleteProduct } from '../../services/productService';
+import { verifyToken } from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 function Admin() {
+  const [isAdmin, setIsAdmin] = useState(null); // Inicia como `null` para evitar renderización prematura
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    const checkAdminStatus = async () => {
+      try {
+        const adminStatus = await verifyToken();
+        setIsAdmin(adminStatus);
+        if (!adminStatus) {
+          navigate('/'); // Redirige a la página principal si no es admin
+        }
+      } catch (error) {
+        console.error('Error verificando estado de admin:', error);
+        setIsAdmin(false);
+        navigate('/'); // Redirige a la página principal en caso de error
+      }
+    };
+    checkAdminStatus();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadProducts();
+    }
+  }, [isAdmin]);
 
   const loadProducts = async () => {
-    const data = await getProducts();
-    setProducts(data);
+    try {
+      const data = await getProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error al cargar productos:", error);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -43,6 +70,9 @@ function Admin() {
     loadProducts();
     handleCloseModal();
   };
+
+  // Muestra un mensaje de carga o vacío mientras verifica el estado de admin
+  if (isAdmin === null) return <Typography>Verificando acceso de administrador...</Typography>;
 
   return (
     <Box
@@ -73,7 +103,7 @@ function Admin() {
               product={product}
               onDelete={() => handleDelete(product.id)}
               onEdit={() => handleEdit(product)}
-              isAdmin
+              isAdmin={isAdmin} // Aquí pasamos directamente el estado isAdmin
             />
           </Grid>
         ))}

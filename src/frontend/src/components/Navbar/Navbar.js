@@ -20,7 +20,6 @@ function Navbar() {
     const fetchTypes = async () => {
       try {
         const tiposData = await getProductTypes();
-        console.log("Tipos obtenidos:", tiposData); // Log para ver la respuesta de la API
         setTipos(Array.isArray(tiposData) ? tiposData : []);
       } catch (error) {
         console.error('Error obteniendo tipos de productos:', error);
@@ -29,9 +28,6 @@ function Navbar() {
     };
     fetchTypes();
   }, []);
-
-  // Log para verificar el contenido de `tipos` antes de renderizar
-  console.log("Estado de tipos:", tipos);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);

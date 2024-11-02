@@ -6,9 +6,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import ProductFormModal from '../../components/ProductForm/ProductFormModal';
 import { getFilteredProducts, getProductTypes, deleteProduct } from '../../services/productService';
+import { verifyToken } from '../../services/authService';
 import { useLocation } from 'react-router-dom';
 
-function Home({ isAdmin }) {
+function Home() {
+  const [isAdmin, setIsAdmin] = useState(false);
   const [products, setProducts] = useState([]);
   const [tipos, setTipos] = useState([]);
   const [tipo, setTipo] = useState('');
@@ -18,6 +20,19 @@ function Home({ isAdmin }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const adminStatus = await verifyToken();
+        setIsAdmin(adminStatus);
+      } catch (error) {
+        console.error('Error verificando estado de admin:', error);
+        setIsAdmin(false);
+      }
+    };
+    checkAdminStatus();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {

@@ -1,30 +1,48 @@
 // src/pages/AdminCustomers/AdminCustomers.js
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Button, Typography, TextField } from '@mui/material';
+import { Box, Grid, Button, Typography } from '@mui/material';
 import ClientForm from '../../components/ClientForm/ClientForm';
 import { getClients, deleteClient } from '../../services/clientService';
+import { verifyToken } from '../../services/authService';
 
 function AdminCustomers() {
+  const [isAdmin, setIsAdmin] = useState(false);
   const [clients, setClients] = useState([]);
   const [editingClient, setEditingClient] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Autenticación básica
-  const [password, setPassword] = useState('');
-
-  const ADMIN_PASSWORD = 'admin123'; // Define tu contraseña aquí (esto es solo para desarrollo)
 
   useEffect(() => {
-    if (isAuthenticated) loadClients();
-  }, [isAuthenticated]);
+    const checkAdminStatus = async () => {
+      try {
+        const adminStatus = await verifyToken();
+        setIsAdmin(adminStatus);
+        if (adminStatus) {
+          loadClients();
+        }
+      } catch (error) {
+        console.error('Error verificando estado de admin:', error);
+        setIsAdmin(false);
+      }
+    };
+    checkAdminStatus();
+  }, []);
 
   const loadClients = async () => {
-    const data = await getClients();
-    setClients(data);
+    try {
+      const data = await getClients();
+      setClients(data);
+    } catch (error) {
+      console.error('Error cargando clientes:', error);
+    }
   };
 
   const handleDelete = async (id) => {
-    await deleteClient(id);
-    loadClients();
+    try {
+      await deleteClient(id);
+      loadClients(); // Recargar clientes después de eliminar
+    } catch (error) {
+      console.error('Error eliminando cliente:', error);
+    }
   };
 
   const handleEdit = (client) => {
@@ -38,43 +56,8 @@ function AdminCustomers() {
     setEditingClient(null);
   };
 
-  const handleLogin = () => {
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-    } else {
-      alert('Contraseña incorrecta');
-    }
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: 3,
-          marginTop: 5,
-        }}
-      >
-        <Typography variant="h6">Ingrese la contraseña de administrador:</Typography>
-        <TextField
-          label="Contraseña"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          sx={{ marginTop: 2 }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleLogin}
-          sx={{ marginTop: 2 }}
-        >
-          Acceder
-        </Button>
-      </Box>
-    );
+  if (!isAdmin) {
+    return <div>Acceso no autorizado</div>;
   }
 
   return (
@@ -119,7 +102,7 @@ function AdminCustomers() {
                 <Button variant="outlined" color="primary" onClick={() => handleEdit(client)} sx={{ mr: 1 }}>
                   Editar
                 </Button>
-                <Button variant="outlined" color="secondary" onClick={() => handleDelete(client.id)}>
+                <Button variant="outlined" color="error" onClick={() => handleDelete(client.id)}>
                   Eliminar
                 </Button>
               </Box>
