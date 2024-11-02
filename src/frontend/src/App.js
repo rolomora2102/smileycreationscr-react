@@ -10,7 +10,6 @@ import OrderConfirmation from './pages/OrderConfirmation/OrderConfirmation';
 import { CartProvider } from './contexts/CartContext';
 import AdminCustomers from './pages/AdminCustomers/AdminCustomers';
 import ProductDetails from './pages/ProductDetails/ProductDetails';
-import Login from './components/AdminLogin/Login';
 
 function App() {
   return (
@@ -21,7 +20,6 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/admin/clientes" element={<AdminCustomers />} /> 

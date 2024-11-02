@@ -21,7 +21,7 @@ jobs:
         node-version: '20.18.0' # Usando la versión 20.18.0 de Node.js
 
     # Paso 3: Instalar dependencias y construir el frontend en GitHub Actions
-    - name: Install and Build Main Frontend
+    - name: Install and Build Frontend
       working-directory: ./src/frontend
       run: |
         npm install
@@ -42,7 +42,7 @@ jobs:
         echo "$EC2_PEM_KEY" > ec2_key.pem
         chmod 400 ec2_key.pem
 
-    # Paso 5: Copiar el backend y solo el build del frontend a la instancia EC2
+    # Paso 5: Copiar el backend, el build de frontend, y el build de login a la instancia EC2
     - name: Deploy Application to EC2
       run: |
         # Crear directorios en EC2 y transferir archivos
@@ -51,7 +51,7 @@ jobs:
         # Copiar el backend completo
         scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/backend/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/backend
 
-        # Copiar solo el contenido del build del frontend principal
+        # Copiar solo el contenido del build del frontend
         scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./src/frontend/build/* ec2-user@${{ secrets.EC2_HOST }}:/var/www/frontend_deploy
 
         # Copiar solo el contenido del build del login frontend
@@ -72,7 +72,7 @@ jobs:
           echo "S3_MAIN_BUCKET_NAME=${{ secrets.S3_MAIN_BUCKET_NAME }}" >> /var/www/backend/.env
           echo "S3_ADDITIONAL_BUCKET_NAME=${{ secrets.S3_ADDITIONAL_BUCKET_NAME }}" >> /var/www/backend/.env
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> /var/www/backend/.env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> /var/www/backend/.env
+          echo "JWT_SECRET"=${{ secrets.JWT_SECRET }}" >> /var/www/backend/.env
         EOF
 
     # Paso 7: Conectar a la instancia EC2 y ejecutar la instalación en el backend
