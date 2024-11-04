@@ -28,9 +28,9 @@ router.post('/', async (req, res) => {
       res.cookie('token', token, {
         httpOnly: true,   // Evita el acceso desde JavaScript en el frontend
         secure: true,     // Solo HTTPS en producción
-        sameSite: 'none' // Protección contra CSRF
+        sameSite: 'None', // Protección contra CSRF
+        path: '/'
       });
-      console.log('Una respuesta: ', res.json, res)
       res.json({ message: 'Autenticación exitosa' });
     } else {
       // En desarrollo, devolver el token en el JSON para almacenarlo en localStorage
