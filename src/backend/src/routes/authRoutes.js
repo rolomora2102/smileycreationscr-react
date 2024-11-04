@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
 
 
 const verifyToken = (req, res) => {
-  console.log('Verificando token...')
+  console.log('Verificando token...', req)
   try {
     // Intenta leer el token de la cookie (producción)
     let token = req.cookies.token;
