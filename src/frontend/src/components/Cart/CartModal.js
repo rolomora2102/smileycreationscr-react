@@ -44,25 +44,25 @@ function CartModal({ open, onClose }) {
           </Typography>
 
           <List>
-            {cart.map((item) => (
-              <ListItem key={item.id} sx={{ mb: 1 }}>
-                <ListItemText
-                  primary={item.name}
-                  secondary={`$${item.price} x ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}`}
-                />
-                <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity === 1}>
-                  <RemoveIcon />
-                </IconButton>
-                <Typography>{item.quantity}</Typography>
-                <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
-                  <AddIcon />
-                </IconButton>
-                <IconButton color="secondary" onClick={() => removeFromCart(item.id)}>
-                  <DeleteIcon />
-                </IconButton>
-              </ListItem>
-            ))}
-          </List>
+          {cart.map((item) => (
+            <ListItem key={item.id} sx={{ mb: 1 }}>
+              <ListItemText
+                primary={item.name}
+                secondary={`$${item.price} x ${item.quantity || 1} = $${(item.price * (item.quantity || 1)).toFixed(2)}`}
+              />
+              <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, (item.quantity || 1) - 1)} disabled={item.quantity === 1}>
+                <RemoveIcon />
+              </IconButton>
+              <Typography>{item.quantity || 1}</Typography>
+              <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}>
+                <AddIcon />
+              </IconButton>
+              <IconButton color="secondary" onClick={() => removeFromCart(item.id)}>
+                <DeleteIcon />
+              </IconButton>
+            </ListItem>
+          ))}
+        </List>
 
           <Typography variant="h6" sx={{ mt: 2 }}>
             Total: ${calculateTotal()}

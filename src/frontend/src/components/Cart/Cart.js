@@ -8,7 +8,10 @@ function Cart() {
   const { cart, removeFromCart, updateQuantity } = useCart();
 
   const calculateTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+    return cart.reduce((total, item) => {
+      const quantity = isNaN(item.quantity) ? 1 : item.quantity;
+      return total + item.price * quantity;
+    }, 0).toFixed(2);
   };
 
   return (
@@ -21,20 +24,20 @@ function Cart() {
           <Box key={item.id} sx={{ mb: 2 }}>
             <Typography variant="body1">{item.name}</Typography>
             <Typography variant="body2" color="text.secondary">
-              ${item.price} x {item.quantity} = ${(item.price * item.quantity).toFixed(2)}
+              ${item.price} x {item.quantity || 1} = ${(item.price * (item.quantity || 1)).toFixed(2)}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
               <Button
                 size="small"
-                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                onClick={() => updateQuantity(item.id, (item.quantity || 1) - 1)}
                 disabled={item.quantity === 1}
               >
                 -
               </Button>
-              <Typography variant="body2">{item.quantity}</Typography>
+              <Typography variant="body2">{item.quantity || 1}</Typography>
               <Button
                 size="small"
-                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
               >
                 +
               </Button>

@@ -45,16 +45,13 @@ router.post('/', async (req, res) => {
 
 
 const verifyToken = (req, res) => {
-  console.log('Verificando token...', req)
   try {
     // Intenta leer el token de la cookie (producción)
     let token = req.cookies.token;
-    console.log('Una cookie: ', token)
 
     // Si no está en la cookie, intenta leerlo del encabezado de autorización (desarrollo)
     if (!token && req.headers.authorization) {
-      token = req.headers.authorization.split(' ')[1]; // Elimina el prefijo "Bearer" si está presente
-      console.log("Token leído del encabezado de autorización:", token);
+      token = req.headers.authorization.split(' ')[1];
     }
 
     if (!token) return res.status(401).json({ isAdmin: false });

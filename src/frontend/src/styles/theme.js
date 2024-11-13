@@ -18,6 +18,13 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: 'Roboto, Arial, sans-serif',
+    h1: { fontFamily: 'Lazy Dog, sans-serif' },
+    h2: { fontFamily: 'Lazy Dog, sans-serif' },
+    h3: { fontFamily: 'Lazy Dog, sans-serif' },
+    h4: { fontFamily: 'Lazy Dog, sans-serif' },
+    h5: { fontFamily: 'Lazy Dog, sans-serif' },
+    h6: { fontFamily: 'Lazy Dog, sans-serif' },
+    button: { fontFamily: 'Lazy Dog, sans-serif' }
   },
 });
 

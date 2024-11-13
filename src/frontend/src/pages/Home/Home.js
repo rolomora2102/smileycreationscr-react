@@ -1,45 +1,25 @@
 // frontend/src/pages/Home/Home.js
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, MenuItem, Select, FormControl, InputLabel, CircularProgress, Button, Drawer, IconButton } from '@mui/material';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import CloseIcon from '@mui/icons-material/Close';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import HeroSlider from '../../components/HeroSlider/HeroSlider';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import ProductFormModal from '../../components/ProductForm/ProductFormModal';
-import { getFilteredProducts, getProductTypes, deleteProduct } from '../../services/productService';
-import { verifyToken } from '../../services/authService';
-import { useLocation } from 'react-router-dom';
+import { getFilteredProducts } from '../../services/productService';
+import { Link } from 'react-router-dom';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+import { ImagesURLObject } from '../../imagesURLs';
 
 function Home() {
-  const [isAdmin, setIsAdmin] = useState(false);
   const [products, setProducts] = useState([]);
-  const [tipos, setTipos] = useState([]);
-  const [tipo, setTipo] = useState('');
-  const [orderBy, setOrderBy] = useState('');
-  const [orderDirection, setOrderDirection] = useState('ASC');
   const [loading, setLoading] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [showFormModal, setShowFormModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      try {
-        const adminStatus = await verifyToken();
-        setIsAdmin(adminStatus);
-      } catch (error) {
-        console.error('Error verificando estado de admin:', error);
-        setIsAdmin(false);
-      }
-    };
-    checkAdminStatus();
-  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const data = await getFilteredProducts(tipo, orderBy, orderDirection);
-        setProducts(data);
+        const data = await getFilteredProducts();
+        setProducts(data.slice(0, 10)); // Solo toma los primeros 5 productos para el preview
       } catch (error) {
         console.error('Error obteniendo productos:', error);
       } finally {
@@ -47,182 +27,179 @@ function Home() {
       }
     };
     fetchProducts();
-  }, [tipo, orderBy, orderDirection]);
-
-  useEffect(() => {
-    const fetchTypes = async () => {
-      try {
-        const tiposData = await getProductTypes();
-        setTipos(tiposData);
-      } catch (error) {
-        console.error('Error obteniendo tipos de productos:', error);
-      }
-    };
-    fetchTypes();
   }, []);
 
-  const toggleDrawer = (open) => () => {
-    setDrawerOpen(open);
-  };
-
-  const handleDelete = async (id) => {
-    await deleteProduct(id);
-    const updatedProducts = products.filter(product => product.id !== id);
-    setProducts(updatedProducts);
-  };
-
-  const handleEdit = (product) => {
-    setEditingProduct(product);
-    setShowFormModal(true);
-  };
-
-  const handleAddProduct = () => {
-    setEditingProduct(null);
-    setShowFormModal(true);
-  };
-
-  const handleFormSave = () => {
-    setShowFormModal(false);
-    setEditingProduct(null);
-    const fetchProducts = async () => {
-      const data = await getFilteredProducts(tipo, orderBy, orderDirection);
-      setProducts(data);
-    };
-    fetchProducts();
+  const sliderSettings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 5,
+    slidesToScroll: 1,
+    arrows: true,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          arrows: false
+        }
+      }
+    ]
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        backgroundColor: 'background.default',
-        color: 'text.primary',
-        minHeight: '100vh',
-        padding: 3,
-      }}
-    >
-      {/* Contenedor flexible para alinear el botón de filtro a la derecha */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mb: 2 }}>
-        {/* Botón para abrir filtros en móvil y escritorio */}
-        <Button
-          variant="outlined"
-          startIcon={<FilterListIcon />}
-          onClick={toggleDrawer(true)}
-        >
-          Filtros
-        </Button>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+      {/* Hero Slider */}
+      <HeroSlider />
+
+      {/* Preview de Productos */}
+      <Box sx={{ width: '100%', mt: 1 }}>
+        <Typography variant="h4" align="center" sx={{ mt: 2 }}>
+          Productos Destacados
+        </Typography>
+
+        {loading ? (
+          <CircularProgress color="primary" />
+        ) : (
+          <Slider {...sliderSettings}>
+            {products.map((product) => (
+              <Box key={product.id} sx={{ padding: 1 }}>
+                <ProductCard product={product} />
+              </Box>
+            ))}
+          </Slider>
+        )}
+
+        {/* Botón de Ver Más */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button sx={{ mt: 2 }} variant="contained" color="primary" component={Link} to="/productos">
+            Ver Más
+          </Button>
+        </Box>
       </Box>
+      {/* Hero de Producto Personalizado */}
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: { xs: '500px', s: '400px', md: '800px' },
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            mt: 5,
+            width: '100%',
+            height: '100%',
+            backgroundImage: `url(${ImagesURLObject.custom_product_hero})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            maskImage: `linear-gradient(to top, rgba(255, 230, 240, 0), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 90%, rgba(255, 230, 240, 0))`,
+            WebkitMaskImage: `linear-gradient(to bottom, rgba(255, 230, 240, 0), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 85%, rgba(255, 230, 240, 0))`, // Compatibilidad con Safari
+            transition: 'opacity 1s ease-in-out',
+          }}
+        >
 
-      {/* Drawer para filtros en móvil (ancla izquierda) */}
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)} sx={{ display: { xs: 'block', sm: 'none' } }}>
-        <Box sx={{ width: 250, p: 2 }}>
-          <IconButton onClick={toggleDrawer(false)}>
-            <CloseIcon />
-          </IconButton>
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Tipo</InputLabel>
-            <Select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-              <MenuItem value="">Todos</MenuItem>
-              {tipos.map((tipo) => (
-                <MenuItem key={tipo} value={tipo}>
-                  {tipo}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Ordenar por</InputLabel>
-            <Select value={orderBy} onChange={(e) => setOrderBy(e.target.value)}>
-              <MenuItem value="">Ninguno</MenuItem>
-              <MenuItem value="name">Nombre</MenuItem>
-              <MenuItem value="price">Precio</MenuItem>
-              <MenuItem value="tipo">Tipo</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Dirección</InputLabel>
-            <Select value={orderDirection} onChange={(e) => setOrderDirection(e.target.value)}>
-              <MenuItem value="ASC">Ascendente</MenuItem>
-              <MenuItem value="DESC">Descendente</MenuItem>
-            </Select>
-          </FormControl>
+        {/* Texto y botón sobre la imagen */}
+        <Box sx={{
+              position: 'absolute',
+              bottom: { xs: '5%', md: '20%' },
+              left: { xs: '2%', md: '10%' },
+              right: { xs: '2%', md: '60%' },
+              color: '#fff',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              padding: '10px 20px',
+              borderRadius: '5px',
+            }}
+          >
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+            Crea tu Producto Personalizado
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            component={Link}
+            to="/producto-personalizado"
+            sx={{ mt: 2 }}
+          >
+            Personaliza el Tuyo
+          </Button>
+          </Box>
         </Box>
-      </Drawer>
+      </Box>
+      <Typography variant="h2" align="center" sx={{ fontStyle: "italic", mt: 2 }}>
+          "El arte es el eco del alma"
+        </Typography>
+      {/* Hero de Ilustración Personalizada */}
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: { xs: '500px', s: '400px', md: '800px' },
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            mt: 5,
+            width: '100%',
+            height: '100%',
+            backgroundImage: `url(${ImagesURLObject.custom_illustration_hero})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            maskImage: `linear-gradient(to top, rgba(255, 230, 240, 0), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 90%, rgba(255, 230, 240, 0))`,
+            WebkitMaskImage: `linear-gradient(to bottom, rgba(255, 230, 240, 0), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 85%, rgba(255, 230, 240, 0))`,
+            transition: 'opacity 1s ease-in-out',
+          }}
+        >
 
-      {/* Drawer para filtros en escritorio (ancla derecha) */}
-      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)} sx={{ display: { xs: 'none', sm: 'block' } }}>
-        <Box sx={{ width: 250, p: 2 }}>
-          <IconButton onClick={toggleDrawer(false)}>
-            <CloseIcon />
-          </IconButton>
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Tipo</InputLabel>
-            <Select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-              <MenuItem value="">Todos</MenuItem>
-              {tipos.map((tipo) => (
-                <MenuItem key={tipo} value={tipo}>
-                  {tipo}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Ordenar por</InputLabel>
-            <Select value={orderBy} onChange={(e) => setOrderBy(e.target.value)}>
-              <MenuItem value="">Ninguno</MenuItem>
-              <MenuItem value="name">Nombre</MenuItem>
-              <MenuItem value="price">Precio</MenuItem>
-              <MenuItem value="tipo">Tipo</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Dirección</InputLabel>
-            <Select value={orderDirection} onChange={(e) => setOrderDirection(e.target.value)}>
-              <MenuItem value="ASC">Ascendente</MenuItem>
-              <MenuItem value="DESC">Descendente</MenuItem>
-            </Select>
-          </FormControl>
+        {/* Texto y botón sobre la imagen */}
+        <Box sx={{
+              position: 'absolute',
+              bottom: { xs: '5%', md: '20%' },
+              left: { xs: '2%', md: '10%' },
+              right: { xs: '2%', md: '60%' },
+              color: '#fff',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              padding: '10px 20px',
+              borderRadius: '5px',
+            }}
+          >
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+            Inventa tu Ilustración Personalizada
+          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            component={Link}
+            to="/ilustracion-personalizada"
+            sx={{ mt: 2 }}
+          >
+            Solicita tu Illustracion
+          </Button>
+          </Box>
         </Box>
-      </Drawer>
-
-      {/* Productos y botones administrativos */}
-      {isAdmin && (
-        <Button variant="contained" color="primary" onClick={handleAddProduct} sx={{ mb: 2 }}>
-          Agregar Producto
-        </Button>
-      )}
-      
-      {loading ? (
-        <CircularProgress color="primary" />
-      ) : (
-        <Grid container spacing={3} justifyContent="center">
-          {products.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
-              <ProductCard
-                product={product}
-                onDelete={() => handleDelete(product.id)}
-                onEdit={() => handleEdit(product)}
-                isAdmin={isAdmin}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      )}
-
-      {isAdmin && (
-        <ProductFormModal
-          open={showFormModal}
-          onClose={() => setShowFormModal(false)}
-          product={editingProduct}
-          onSave={handleFormSave}
-        />
-      )}
+      </Box>
     </Box>
   );
 }

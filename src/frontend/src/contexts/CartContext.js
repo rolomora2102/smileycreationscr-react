@@ -1,4 +1,3 @@
-// src/contexts/CartContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const CartContext = createContext();
@@ -23,11 +22,11 @@ export const CartProvider = ({ children }) => {
       if (existingProduct) {
         // Actualizar la cantidad existente sumando la cantidad del producto añadido
         return prevCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + product.quantity } : item
+          item.id === product.id ? { ...item, quantity: item.quantity + (product.quantity || 1) } : item
         );
       } else {
-        // Si el producto no está en el carrito, agregarlo con la cantidad especificada
-        return [...prevCart, { ...product, quantity: product.quantity }];
+        // Si el producto no está en el carrito, agregarlo con una cantidad predeterminada de 1 si no se especifica
+        return [...prevCart, { ...product, quantity: product.quantity || 1 }];
       }
     });
     setNotification(true);
@@ -52,7 +51,12 @@ export const CartProvider = ({ children }) => {
     localStorage.removeItem('cart');
   };
 
-  const getTotalItems = () => cart.reduce((total, item) => total + item.quantity, 0);
+  const getTotalItems = () => {
+    return cart.reduce((total, item) => {
+      const quantity = isNaN(item.quantity) ? 0 : item.quantity;
+      return total + quantity;
+    }, 0);
+  };
 
   const calculateTotal = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
