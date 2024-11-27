@@ -91,20 +91,16 @@ function Products() {
     setShowFormModal(true);
   };
 
-  const handleFormSave = () => {
-    setShowFormModal(false);
-    setEditingProduct(null);
-    // Refresca la lista de productos después de guardar
-    const fetchProducts = async () => {
-      try {
-        const data = await getFilteredProducts(tipo, orderBy, orderDirection);
-        setProducts(data);
-        setFilteredProducts(data);
-      } catch (error) {
-        console.error('Error refrescando productos:', error);
-      }
-    };
-    fetchProducts();
+  const handleFormSave = async () => {
+    try {
+      setShowFormModal(false);
+      setEditingProduct(null);
+      const data = await getFilteredProducts(tipo, orderBy, orderDirection);
+      setProducts(data);
+      setFilteredProducts(data);
+    } catch (error) {
+      console.error('Error refrescando productos:', error);
+    }
   };
 
   const toggleDrawer = (open) => () => {
@@ -237,7 +233,10 @@ function Products() {
       {isAdmin && (
         <ProductFormModal
           open={showFormModal}
-          onClose={() => setShowFormModal(false)}
+          onClose={() => {
+            setShowFormModal(false);
+            setEditingProduct(null); // Resetea el producto en edición al cerrar
+          }}
           product={editingProduct}
           onSave={handleFormSave}
         />

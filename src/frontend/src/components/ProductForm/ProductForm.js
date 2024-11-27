@@ -116,18 +116,13 @@ function ProductForm({ product = {}, onSave, onClose }) {
         await updateProduct(product.id, formData);
         setSnackbarMessage('Producto actualizado con éxito');
       } else {
-        const createdProduct = await createProduct(formData);
-        formData.id = createdProduct.id;
+        await createProduct(formData);
         setSnackbarMessage('Producto creado con éxito');
       }
       setSnackbarSeverity('success');
       setOpenSnackbar(true);
-  
-      // Llama a onSave para actualizar la lista de productos en el componente padre
-      if (onSave) onSave();
-  
-      // Llama a onClose para cerrar el modal después de guardar
-      if (onClose) onClose();
+      onSave(); // Refresca los productos
+      onClose(); // Cierra el modal
     } catch (error) {
       console.error('Error guardando producto:', error);
       setSnackbarMessage(error.response?.data?.error || 'Hubo un error al guardar el producto');
@@ -135,6 +130,7 @@ function ProductForm({ product = {}, onSave, onClose }) {
       setOpenSnackbar(true);
     }
   };
+  
   
 
   const handleCloseSnackbar = () => {
