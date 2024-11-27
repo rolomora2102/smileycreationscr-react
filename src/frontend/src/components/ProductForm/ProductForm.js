@@ -3,7 +3,7 @@ import { TextField, Button, Box, Snackbar, Alert } from '@mui/material';
 import { createProduct, updateProduct, uploadProductImage } from '../../services/productService';
 import api from '../../services/api';
 
-function ProductForm({ product = {}, onSave, onClose }) {
+function ProductForm({ product = {}, onSave }) {
   const [formData, setFormData] = useState({
     name: product?.name || '',
     description: product?.description || '',
@@ -121,10 +121,7 @@ function ProductForm({ product = {}, onSave, onClose }) {
       }
       setSnackbarSeverity('success');
       setOpenSnackbar(true);
-  
-      // Llama ambas funciones al guardar
-      onSave(); // Actualiza la lista de productos
-      onClose(); // Cierra el modal
+      onSave();
     } catch (error) {
       console.error('Error guardando producto:', error);
       setSnackbarMessage(error.response?.data?.error || 'Hubo un error al guardar el producto');
@@ -200,7 +197,7 @@ function ProductForm({ product = {}, onSave, onClose }) {
       </Button>
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={3000}
+        autoHideDuration={7000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
