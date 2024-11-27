@@ -1,4 +1,3 @@
-// src/components/ProductForm/ProductFormModal.js
 import React from 'react';
 import { Modal, Backdrop, Fade, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -30,11 +29,19 @@ function ProductFormModal({ open, onClose, product, onSave }) {
             my: '10%',
           }}
         >
-          <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, right: 8, color: 'text.secondary' }}>
+          <IconButton
+            onClick={onClose}
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              color: 'text.secondary',
+            }}
+          >
             <CloseIcon />
           </IconButton>
 
-          <ProductForm product={product} onSave={onSave} />
+          <ProductForm product={product} onSave={onSave} onClose={onClose} />
         </Box>
       </Fade>
     </Modal>

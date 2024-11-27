@@ -33,7 +33,7 @@ function Products() {
         setIsAdmin(adminStatus);
       } catch (error) {
         console.error('Error verificando estado de admin:', error);
-        setIsAdmin(false);
+        setIsAdmin(true);
       }
     };
     checkAdminStatus();
@@ -210,7 +210,7 @@ function Products() {
 
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Dirección</InputLabel>
-            <Select value={orderDirection} onChange={(e) => setOrderDirection(e.target.value)}>
+            <Select sx={{ mt: 1 }} value={orderDirection} onChange={(e) => setOrderDirection(e.target.value)}>
               <MenuItem value="ASC">Ascendente</MenuItem>
               <MenuItem value="DESC">Descendente</MenuItem>
             </Select>

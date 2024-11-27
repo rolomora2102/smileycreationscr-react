@@ -1,4 +1,3 @@
-// src/components/ProductCard/ProductCard.js
 import React, { useState } from 'react';
 import { Card, CardContent, CardMedia, Typography, Button, CardActions, Box } from '@mui/material';
 import { useCart } from '../../contexts/CartContext';
@@ -22,65 +21,89 @@ function ProductCard({ product, onDelete, onEdit, isAdmin }) {
       <Card
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'row', md: 'column' }, // Fila en móvil, columna en escritorio
-          alignItems: { xs: 'center', md: 'flex-start' },
-          maxWidth: { xs: '100%', sm: '100%', md: 450 },
-          m: 1,
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+          height: '420px', // Altura consistente
+          padding: 2,
+          boxSizing: 'border-box',
+          borderRadius: '12px', // Bordes redondeados
+          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
           transition: 'transform 0.3s, box-shadow 0.3s',
           '&:hover': {
-            transform: 'scale(1.05)',
+            transform: 'scale(1.02)',
             boxShadow: 6,
           },
         }}
       >
         <CardMedia
           component="img"
-          height="100"
           image={product.image_url}
           alt={product.name}
           sx={{
-            width: { xs: 100, md: '100%' }, // Imagen más pequeña en móvil
-            height: { xs: 'auto', md: 300 },
-            objectFit: 'cover',
+            width: '100%',
+            height: '170px', // Altura fija para imágenes
+            objectFit: 'contain', // Contiene la imagen sin cortarla
+            objectPosition: 'center', // Centra la imagen
           }}
         />
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-          <CardContent sx={{ flex: '1 0 auto', textAlign: { xs: 'left', md: 'left' } }}>
-            <Typography gutterBottom variant="h5" component="div">
-              {product.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {product.description}
-            </Typography>
-            <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
-              ${product.price}
-            </Typography>
-          </CardContent>
-          <CardActions sx={{ justifyContent: { xs: 'flex-start', md: 'center' } }}>
-            <Button size="small" variant="contained" color="primary" onClick={() => addToCart(product)}>
-              Agregar al carrito
-            </Button>
-            <Button
-              size="small"
-              color="secondary"
-              component={Link}
-              to={`/producto/${product.id}`}
-            >
-              Ver Más
-            </Button>
-            {isAdmin && (
-              <Box>
-                <Button size="small" color="secondary" onClick={handleEditClick}>
-                  Editar
-                </Button>
-                <Button size="" color="error" onClick={onDelete}>
-                  Eliminar
-                </Button>
-              </Box>
-            )}
-          </CardActions>
-        </Box>
+        <CardContent sx={{ textAlign: 'center', flexGrow: 1 }}>
+          <Typography
+            gutterBottom
+            variant="h6"
+            sx={{
+              fontWeight: 'bold',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {product.name}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              display: '-webkit-box',
+              WebkitBoxOrient: 'vertical',
+              WebkitLineClamp: 2, // Limita el texto a 2 líneas
+              overflow: 'hidden',
+            }}
+          >
+            {product.description}
+          </Typography>
+          <Typography
+            variant="h6"
+            color="primary"
+            sx={{ fontWeight: 'bold', marginTop: 2 }}
+          >
+            ${product.price}
+          </Typography>
+        </CardContent>
+        <CardActions sx={{ justifyContent: 'center' }}>
+          <Button size="small" variant="contained" color="primary" onClick={() => addToCart(product)}>
+            Agregar al carrito
+          </Button>
+          <Button
+            size="small"
+            color="secondary"
+            component={Link}
+            to={`/producto/${product.id}`}
+          >
+            Ver Más
+          </Button>
+          {isAdmin && (
+            <Box>
+              <Button size="small" color="secondary" onClick={handleEditClick}>
+                Editar
+              </Button>
+              <Button size="small" color="error" onClick={onDelete}>
+                Eliminar
+              </Button>
+            </Box>
+          )}
+        </CardActions>
       </Card>
 
       {/* Modal de edición */}

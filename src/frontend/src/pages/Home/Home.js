@@ -66,7 +66,7 @@ function Home() {
 
       {/* Preview de Productos */}
       <Box sx={{ width: '100%', overflow: 'hidden', paddingX: { xs: 2, md: 0 } }}>
-        <Typography variant="h4" align="center" sx={{ mt: 2 }}>
+        <Typography variant="h4" align="center" sx={{ mt: 2, fontWeight: 'bold' }}>
           PRODUCTOS DESTACADOS
         </Typography>
 
@@ -77,7 +77,14 @@ function Home() {
         ) : (
           <Slider {...sliderSettings}>
             {products.map((product) => (
-              <Box key={product.id} sx={{ padding: '8px', boxSizing: 'border-box' }}>
+              <Box
+                key={product.id}
+                sx={{
+                  padding: '8px',
+                  boxSizing: 'border-box',
+                  height: '100%', // Asegura que todas las tarjetas ocupen el espacio completo
+                }}
+              >
                 <ProductCard product={product} />
               </Box>
             ))}
@@ -86,7 +93,7 @@ function Home() {
 
         {/* Botón de Ver Más */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Button sx={{ mt: 2 }} variant="contained" color="primary" component={Link} to="/productos">
+          <Button sx={{ mt: 2, mb: 2 }} variant="contained" color="primary" component={Link} to="/productos">
             Ver Más
           </Button>
         </Box>
