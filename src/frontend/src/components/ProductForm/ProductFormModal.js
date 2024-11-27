@@ -7,7 +7,7 @@ function ProductFormModal({ open, onClose, product, onSave }) {
   return (
     <Modal
       open={open}
-      onClose={onClose} // Garantiza que el modal se cierre
+      onClose={onClose} // Garantiza que el modal se cierre sin problemas
       closeAfterTransition
       BackdropComponent={Backdrop}
       BackdropProps={{
@@ -30,7 +30,7 @@ function ProductFormModal({ open, onClose, product, onSave }) {
           }}
         >
           <IconButton
-            onClick={onClose} // Cierra el modal al hacer clic en la "X"
+            onClick={onClose}
             sx={{
               position: 'absolute',
               top: 8,
@@ -41,11 +41,7 @@ function ProductFormModal({ open, onClose, product, onSave }) {
             <CloseIcon />
           </IconButton>
 
-          <ProductForm
-            product={product}
-            onSave={onSave} // Refresca los productos después de guardar
-            onClose={onClose} // Garantiza que el modal se cierra después de guardar
-          />
+          <ProductForm product={product} onSave={onSave} onClose={onClose} />
         </Box>
       </Fade>
     </Modal>

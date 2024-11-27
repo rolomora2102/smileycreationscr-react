@@ -93,11 +93,14 @@ function Products() {
 
   const handleFormSave = async () => {
     try {
+      // Cierra el modal inmediatamente antes de refrescar los datos
+      setShowFormModal(false);
+      setEditingProduct(null);
+  
+      // Refresca los productos después de cerrar el modal
       const data = await getFilteredProducts(tipo, orderBy, orderDirection);
       setProducts(data);
       setFilteredProducts(data);
-      setShowFormModal(false); // Cierra el modal después de refrescar los datos
-      setEditingProduct(null); // Limpia el estado del producto en edición
     } catch (error) {
       console.error('Error refrescando productos:', error);
     }
@@ -107,7 +110,6 @@ function Products() {
     setShowFormModal(false);
     setEditingProduct(null);
   };
-
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
@@ -238,9 +240,9 @@ function Products() {
       {isAdmin && (
         <ProductFormModal
         open={showFormModal}
-        onClose={handleCloseModal} // Asegura que el modal siempre se cierra al llamarlo
+        onClose={handleCloseModal} // Asegura que el modal siempre se cierra
         product={editingProduct}
-        onSave={handleFormSave} // Refresca productos después de guardar
+        onSave={handleFormSave} // Actualiza la lista después de guardar
       />
       )}
     </Box>
