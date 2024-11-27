@@ -56,7 +56,7 @@ function Checkout() {
       Dirección Completa: ${customerInfo.address}\n
       \n*Detalles del Pedido:*\n
       ${cart.map(item => `- ${item.name} (x${item.quantity}) = $${(item.price * item.quantity).toFixed(2)}`).join('\n')}
-      \nTotal: $${calculateTotal()}
+      \nTotal: ₡${calculateTotal()}
     `;
     const encodedMessage = encodeURIComponent(message.trim());
 
@@ -83,13 +83,13 @@ function Checkout() {
         <Box key={item.id} sx={{ mb: 2 }}>
           <Typography variant="body1">{item.name}</Typography>
           <Typography variant="body2" color="text.secondary">
-            ${item.price} x {item.quantity} = ${(item.price * item.quantity).toFixed(2)}
+            ₡{item.price} x {item.quantity} = ₡{(item.price * item.quantity).toFixed(2)}
           </Typography>
           <Divider sx={{ my: 1 }} />
         </Box>
       ))}
       <Typography variant="h6" sx={{ mt: 2 }}>
-        TOTAL: ${calculateTotal()}
+        TOTAL: ₡{calculateTotal()}
       </Typography>
 
       <Box sx={{ mt: 3 }}>

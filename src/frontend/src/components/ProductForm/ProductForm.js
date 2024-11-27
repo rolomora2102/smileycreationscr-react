@@ -110,28 +110,32 @@ function ProductForm({ product = {}, onSave, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+  
     try {
       if (product?.id) {
         await updateProduct(product.id, formData);
         setSnackbarMessage('Producto actualizado con éxito');
       } else {
-        await createProduct(formData);
+        const createdProduct = await createProduct(formData);
+        formData.id = createdProduct.id;
         setSnackbarMessage('Producto creado con éxito');
       }
       setSnackbarSeverity('success');
       setOpenSnackbar(true);
-      onSave();
-      onClose();
+  
+      // Llama a onSave para actualizar la lista de productos en el componente padre
+      if (onSave) onSave();
+  
+      // Llama a onClose para cerrar el modal después de guardar
+      if (onClose) onClose();
     } catch (error) {
       console.error('Error guardando producto:', error);
-      setSnackbarMessage(
-        error.response?.data?.error || 'Hubo un error al guardar el producto'
-      );
+      setSnackbarMessage(error.response?.data?.error || 'Hubo un error al guardar el producto');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
     }
   };
+  
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);

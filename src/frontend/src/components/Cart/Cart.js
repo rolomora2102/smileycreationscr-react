@@ -24,7 +24,7 @@ function Cart() {
           <Box key={item.id} sx={{ mb: 2 }}>
             <Typography variant="body1">{item.name}</Typography>
             <Typography variant="body2" color="text.secondary">
-              ${item.price} x {item.quantity || 1} = ${(item.price * (item.quantity || 1)).toFixed(2)}
+              ₡{item.price} x {item.quantity || 1} = ₡{(item.price * (item.quantity || 1)).toFixed(2)}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
               <Button
@@ -56,7 +56,7 @@ function Cart() {
         <Typography variant="body2">El carrito está vacío</Typography>
       )}
       <Typography variant="h6" sx={{ mt: 2 }}>
-        Total: ${calculateTotal()}
+        Total: ₡{calculateTotal()}
       </Typography>
     </Box>
   );

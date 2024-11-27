@@ -49,7 +49,7 @@ function CartModal({ open, onClose }) {
               <ListItem key={item.id} sx={{ mb: 1 }}>
                 <ListItemText
                   primary={item.name}
-                  secondary={`$${item.price} x ${item.quantity || 1} = $${(item.price * (item.quantity || 1)).toFixed(2)}`}
+                  secondary={`₡${item.price} x ${item.quantity || 1} = ₡${(item.price * (item.quantity || 1)).toFixed(2)}`}
                 />
                 <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, (item.quantity || 1) - 1)} disabled={item.quantity === 1}>
                   <RemoveIcon />
@@ -66,7 +66,7 @@ function CartModal({ open, onClose }) {
           </List>
 
           <Typography variant="h6" sx={{ mt: 2 }}>
-            Total: ${calculateTotal()}
+            Total: ₡{calculateTotal()}
           </Typography>
 
           <Button

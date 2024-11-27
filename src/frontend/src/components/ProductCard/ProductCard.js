@@ -78,7 +78,7 @@ function ProductCard({ product, onDelete, onEdit, isAdmin }) {
             color="primary"
             sx={{ fontWeight: 'bold', marginTop: 2 }}
           >
-            ${product.price}
+            ₡{product.price}
           </Typography>
         </CardContent>
         <CardActions sx={{ justifyContent: 'center' }}>

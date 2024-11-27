@@ -33,7 +33,7 @@ function Products() {
         setIsAdmin(adminStatus);
       } catch (error) {
         console.error('Error verificando estado de admin:', error);
-        setIsAdmin(true);
+        setIsAdmin(false);
       }
     };
     checkAdminStatus();
@@ -70,10 +70,14 @@ function Products() {
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.");
     if (confirmDelete) {
-      await deleteProduct(id);
-      const updatedProducts = products.filter((product) => product.id !== id);
-      setProducts(updatedProducts);
-      setFilteredProducts(updatedProducts);
+      try {
+        await deleteProduct(id);
+        const updatedProducts = products.filter((product) => product.id !== id);
+        setProducts(updatedProducts);
+        setFilteredProducts(updatedProducts);
+      } catch (error) {
+        console.error('Error eliminando producto:', error);
+      }
     }
   };
 
@@ -90,10 +94,15 @@ function Products() {
   const handleFormSave = () => {
     setShowFormModal(false);
     setEditingProduct(null);
+    // Refresca la lista de productos después de guardar
     const fetchProducts = async () => {
-      const data = await getFilteredProducts(tipo, orderBy, orderDirection);
-      setProducts(data);
-      setFilteredProducts(data);
+      try {
+        const data = await getFilteredProducts(tipo, orderBy, orderDirection);
+        setProducts(data);
+        setFilteredProducts(data);
+      } catch (error) {
+        console.error('Error refrescando productos:', error);
+      }
     };
     fetchProducts();
   };
