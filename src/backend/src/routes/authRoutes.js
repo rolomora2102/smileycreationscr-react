@@ -26,9 +26,9 @@ router.post('/', async (req, res) => {
     // En producción, almacenar el token en una cookie
     if (process.env.NODE_ENV === 'production') {
       res.cookie('token', token, {
-        httpOnly: true,   // Evita el acceso desde JavaScript en el frontend
-        secure: true,     // Solo HTTPS en producción
-        sameSite: 'None', // Protección contra CSRF
+        httpOnly: true,   
+        secure: true,    
+        sameSite: 'None',
         path: '/'
       });
       res.json({ message: 'Autenticación exitosa' });

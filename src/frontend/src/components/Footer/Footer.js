@@ -5,7 +5,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 const Footer = React.forwardRef((props, ref) => (
   <Box
-      ref={ref} // Usa la referencia aquí
+      ref={ref}
       component="footer"
       sx={{
         py: 4,
@@ -18,28 +18,37 @@ const Footer = React.forwardRef((props, ref) => (
         alignItems: 'center',
         gap: 2,
         borderTop: '1px solid #F4A7B9',
+        width: '100%', // Asegura que ocupe todo el ancho en móvil
+        boxSizing: 'border-box', // Ayuda a mantener el espaciado adecuado
       }}
     >
-      <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#F48FB1' }}>
+      <Typography 
+        variant="h4" 
+        sx={{ 
+          fontWeight: 'bold', 
+          color: '#F48FB1',
+          fontSize: { xs: '1.5rem', md: '2rem' } // Ajusta tamaño en pantallas pequeñas
+        }}
+      >
         SmileyCreations by Danii.O
       </Typography>
       
-      <Stack direction="row" spacing={4} sx={{ mt: 1, mb: 2 }}>
-        <MuiLink href="/" color="inherit" underline="hover" sx={{ fontSize: '0.9rem' }}>
+      <Stack direction="row" spacing={2} sx={{ mt: 1, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <MuiLink href="/" color="inherit" underline="hover" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
           Inicio
         </MuiLink>
-        <MuiLink href="/productos" color="inherit" underline="hover" sx={{ fontSize: '0.9rem' }}>
+        <MuiLink href="/productos" color="inherit" underline="hover" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
           Productos
         </MuiLink>
-        <MuiLink href="/producto-personalizado" color="inherit" underline="hover" sx={{ fontSize: '0.9rem' }}>
+        <MuiLink href="/producto-personalizado" color="inherit" underline="hover" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
           Personalizados
         </MuiLink>
-        <MuiLink href="/ilustraciones" color="inherit" underline="hover" sx={{ fontSize: '0.9rem' }}>
+        <MuiLink href="/ilustraciones" color="inherit" underline="hover" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
           Ilustraciones
         </MuiLink>
       </Stack>
 
-      <Box sx={{ display: 'flex', gap: 2 }}>
+      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
         <IconButton
           component="a"
           href="https://www.instagram.com/smileycreationscr/"
@@ -60,7 +69,7 @@ const Footer = React.forwardRef((props, ref) => (
         </IconButton>
       </Box>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>
         © 2024 SmileyCreations by Danii.O. Todos los derechos reservados.
       </Typography>
     </Box>

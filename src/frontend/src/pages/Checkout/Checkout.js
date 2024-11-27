@@ -76,8 +76,8 @@ function Checkout() {
           </Step>
         ))}
       </Stepper>
-      <Typography variant="h5" gutterBottom>
-        Checkout
+      <Typography variant="h5" sx={{fontWeight: 'bold'}} gutterBottom>
+        CHECKOUT
       </Typography>
       {cart.map((item) => (
         <Box key={item.id} sx={{ mb: 2 }}>
@@ -89,12 +89,12 @@ function Checkout() {
         </Box>
       ))}
       <Typography variant="h6" sx={{ mt: 2 }}>
-        Total: ${calculateTotal()}
+        TOTAL: ${calculateTotal()}
       </Typography>
 
       <Box sx={{ mt: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Información del Cliente
+          INFORMACION DEL CLIENTE
         </Typography>
         <TextField
           label="Nombre"
@@ -124,7 +124,7 @@ function Checkout() {
             margin="normal"
             required
           />
-          <Tooltip title="La cédula se solicita para poder hacer el envío por Correos de Costa Rica.">
+          <Tooltip title="La cédula se solicita para poder hacer el envío por Correos de Costa Rica." enterTouchDelay={0}>
             <IconButton>
               <HelpOutlineIcon />
             </IconButton>
@@ -140,7 +140,7 @@ function Checkout() {
             margin="normal"
             required
           />
-          <Tooltip title="Por favor, escriba la dirección completa, incluyendo provincia, cantón y distrito para el envío por Correos de Costa Rica.">
+          <Tooltip title="Por favor, escriba la dirección completa, incluyendo provincia, cantón y distrito para el envío por Correos de Costa Rica." enterTouchDelay={0}>
             <IconButton>
               <HelpOutlineIcon />
             </IconButton>

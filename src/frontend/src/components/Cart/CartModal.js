@@ -1,4 +1,3 @@
-// src/components/Cart/CartModal.js
 import React from 'react';
 import { Modal, Backdrop, Box, Typography, IconButton, Fade, Button, List, ListItem, ListItemText } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,14 +24,16 @@ function CartModal({ open, onClose }) {
         <Box
           sx={{
             position: 'relative',
-            width: 400,
+            width: { xs: '90%', sm: 400 }, // Ajusta el ancho para dispositivos móviles
             bgcolor: 'background.paper',
             color: 'text.primary',
-            p: 4,
+            p: 3,
             borderRadius: 2,
             boxShadow: 24,
             mx: 'auto',
             my: '10%',
+            maxHeight: '80vh', // Limita la altura en móviles
+            overflowY: 'auto', // Permite el scroll si el contenido excede la altura
           }}
         >
           <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, right: 8, color: 'text.secondary' }}>
@@ -44,31 +45,30 @@ function CartModal({ open, onClose }) {
           </Typography>
 
           <List>
-          {cart.map((item) => (
-            <ListItem key={item.id} sx={{ mb: 1 }}>
-              <ListItemText
-                primary={item.name}
-                secondary={`$${item.price} x ${item.quantity || 1} = $${(item.price * (item.quantity || 1)).toFixed(2)}`}
-              />
-              <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, (item.quantity || 1) - 1)} disabled={item.quantity === 1}>
-                <RemoveIcon />
-              </IconButton>
-              <Typography>{item.quantity || 1}</Typography>
-              <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}>
-                <AddIcon />
-              </IconButton>
-              <IconButton color="secondary" onClick={() => removeFromCart(item.id)}>
-                <DeleteIcon />
-              </IconButton>
-            </ListItem>
-          ))}
-        </List>
+            {cart.map((item) => (
+              <ListItem key={item.id} sx={{ mb: 1 }}>
+                <ListItemText
+                  primary={item.name}
+                  secondary={`$${item.price} x ${item.quantity || 1} = $${(item.price * (item.quantity || 1)).toFixed(2)}`}
+                />
+                <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, (item.quantity || 1) - 1)} disabled={item.quantity === 1}>
+                  <RemoveIcon />
+                </IconButton>
+                <Typography>{item.quantity || 1}</Typography>
+                <IconButton size="small" color="primary" onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}>
+                  <AddIcon />
+                </IconButton>
+                <IconButton color="secondary" onClick={() => removeFromCart(item.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </ListItem>
+            ))}
+          </List>
 
           <Typography variant="h6" sx={{ mt: 2 }}>
             Total: ${calculateTotal()}
           </Typography>
 
-          {/* Botón de Checkout en el modal del carrito */}
           <Button
             variant="contained"
             color="primary"
