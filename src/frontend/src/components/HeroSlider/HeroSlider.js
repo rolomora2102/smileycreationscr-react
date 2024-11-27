@@ -31,7 +31,7 @@ function HeroSlider() {
       sx={{
         position: 'relative',
         width: '100%',
-        height: { xs: '260px', s: '400px', md: '700px' },
+        height: { xs: '400px', s: '400px', md: '1000px' },
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',

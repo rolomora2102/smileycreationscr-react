@@ -240,11 +240,11 @@ function Products() {
 
       {isAdmin && (
         <ProductFormModal
-          open={showFormModal}
-          onClose={() => setShowFormModal(false)}
-          product={editingProduct}
-          onSave={handleFormSave}
-        />
+        open={showFormModal}
+        onClose={() => setShowFormModal(false)} // Solo cierra el modal
+        product={editingProduct}
+        onSave={handleFormSave} // Actualiza la lista después de guardar
+      />
       )}
     </Box>
   );

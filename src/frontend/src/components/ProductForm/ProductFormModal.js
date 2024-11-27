@@ -3,11 +3,11 @@ import { Modal, Backdrop, Fade, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ProductForm from './ProductForm';
 
-function ProductFormModal({ open, product, onSave }) {
+function ProductFormModal({ open, product, onSave, onClose }) {
   return (
     <Modal
       open={open}
-      onClose={onSave}
+      onClose={onClose} // Ahora cierra el modal correctamente
       closeAfterTransition
       BackdropComponent={Backdrop}
       BackdropProps={{
@@ -29,8 +29,9 @@ function ProductFormModal({ open, product, onSave }) {
             my: '10%',
           }}
         >
+          {/* Botón de cerrar (X) vinculado a onClose */}
           <IconButton
-            onClick={onSave}
+            onClick={onClose}
             sx={{
               position: 'absolute',
               top: 8,
@@ -41,6 +42,7 @@ function ProductFormModal({ open, product, onSave }) {
             <CloseIcon />
           </IconButton>
 
+          {/* Formulario del producto */}
           <ProductForm product={product} onSave={onSave} />
         </Box>
       </Fade>
