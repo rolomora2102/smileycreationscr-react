@@ -1,5 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, MenuItem, Select, FormControl, InputLabel, CircularProgress, Button, Drawer, IconButton, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Grid,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  CircularProgress,
+  Button,
+  Drawer,
+  IconButton,
+  TextField,
+  Typography,
+} from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -68,7 +81,9 @@ function Products() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.");
+    const confirmDelete = window.confirm(
+      '¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.'
+    );
     if (confirmDelete) {
       try {
         await deleteProduct(id);
@@ -92,9 +107,8 @@ function Products() {
   };
 
   const handleFormSave = async () => {
+    setShowFormModal(false);
     try {
-      setEditingProduct(null);
-      setShowFormModal(false);
       const data = await getFilteredProducts(tipo, orderBy, orderDirection);
       setProducts(data);
       setFilteredProducts(data);
@@ -102,7 +116,7 @@ function Products() {
       console.error('Error refrescando productos:', error);
     }
   };
-  
+
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
@@ -110,7 +124,9 @@ function Products() {
   const handleSearchChange = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    setFilteredProducts(products.filter(product => product.name.toLowerCase().includes(query)));
+    setFilteredProducts(
+      products.filter((product) => product.name.toLowerCase().includes(query))
+    );
   };
 
   const renderProductSections = () => {
@@ -153,7 +169,6 @@ function Products() {
         padding: 3,
       }}
     >
-      {/* Barra de búsqueda y botón de filtro */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mb: 2 }}>
         <TextField
           variant="outlined"
@@ -165,16 +180,11 @@ function Products() {
           }}
           sx={{ flex: 1, mr: 2 }}
         />
-        <Button
-          variant="outlined"
-          startIcon={<FilterListIcon />}
-          onClick={toggleDrawer(true)}
-        >
+        <Button variant="outlined" startIcon={<FilterListIcon />} onClick={toggleDrawer(true)}>
           Filtros
         </Button>
       </Box>
 
-      {/* Botón de Agregar Producto para administradores */}
       {isAdmin && (
         <Button
           variant="contained"
@@ -186,7 +196,6 @@ function Products() {
         </Button>
       )}
 
-      {/* Drawer para filtros en móvil */}
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 250, p: 2 }}>
           <IconButton onClick={toggleDrawer(false)}>
@@ -223,7 +232,6 @@ function Products() {
         </Box>
       </Drawer>
 
-      {/* Productos y secciones */}
       {loading ? (
         <CircularProgress color="primary" />
       ) : (
@@ -232,10 +240,11 @@ function Products() {
 
       {isAdmin && (
         <ProductFormModal
-        open={showFormModal}
-        product={editingProduct}
-        onSave={handleFormSave} // Actualiza la lista después de guardar
-      />
+          open={showFormModal}
+          onClose={() => setShowFormModal(false)}
+          product={editingProduct}
+          onSave={handleFormSave}
+        />
       )}
     </Box>
   );
