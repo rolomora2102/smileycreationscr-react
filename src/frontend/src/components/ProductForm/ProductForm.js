@@ -121,7 +121,7 @@ function ProductForm({ product = {}, onSave, onClose }) {
       }
       setSnackbarSeverity('success');
       setOpenSnackbar(true);
-      onSave(); // Refresca los productos
+      onSave(); // Actualiza la lista de productos en el componente padre
       onClose(); // Cierra el modal
     } catch (error) {
       console.error('Error guardando producto:', error);
@@ -130,8 +130,6 @@ function ProductForm({ product = {}, onSave, onClose }) {
       setOpenSnackbar(true);
     }
   };
-  
-  
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
