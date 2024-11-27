@@ -93,6 +93,8 @@ function Products() {
 
   const handleFormSave = async () => {
     try {
+      setEditingProduct(null);
+      setShowFormModal(false);
       const data = await getFilteredProducts(tipo, orderBy, orderDirection);
       setProducts(data);
       setFilteredProducts(data);
