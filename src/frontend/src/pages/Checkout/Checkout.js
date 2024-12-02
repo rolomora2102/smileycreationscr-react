@@ -55,7 +55,7 @@ function Checkout() {
       Cédula: ${customerInfo.id}\n
       Dirección Completa: ${customerInfo.address}\n
       \n*Detalles del Pedido:*\n
-      ${cart.map(item => `- ${item.name} (x${item.quantity}) = $${(item.price * item.quantity).toFixed(2)}`).join('\n')}
+      ${cart.map(item => `- ${item.name} (x${item.quantity}) = ₡${(item.price * item.quantity).toFixed(2)}`).join('\n')}
       \nTotal: ₡${calculateTotal()}
     `;
     const encodedMessage = encodeURIComponent(message.trim());
