@@ -86,13 +86,14 @@ router.get('/', async (req, res) => {
 
   const validColumns = ['name', 'price', 'tipo', 'created_at'];
 
-  query += ' ORDER BY tipo';
-  
+  // Modified ORDER BY to prioritize 'Aretes'
+  query += ' ORDER BY CASE WHEN tipo = "Aretes" THEN 0 ELSE 1 END';
+
   if (orderBy && validColumns.includes(orderBy)) {
     query += `, ${orderBy} ${orderDirection === 'DESC' ? 'DESC' : 'ASC'}`;
   }
-  
-  query += ', created_at DESC';
+
+  query += ', tipo, created_at DESC';
 
   try {
     const db = await connectToDatabase();
