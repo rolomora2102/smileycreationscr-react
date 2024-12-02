@@ -84,10 +84,15 @@ router.get('/', async (req, res) => {
     queryParams.push(tipo);
   }
 
-  const validColumns = ['name', 'price', 'tipo'];
+  const validColumns = ['name', 'price', 'tipo', 'created_at'];
+
+  query += ' ORDER BY tipo';
+  
   if (orderBy && validColumns.includes(orderBy)) {
-    query += ` ORDER BY ${orderBy} ${orderDirection === 'DESC' ? 'DESC' : 'ASC'}`;
+    query += `, ${orderBy} ${orderDirection === 'DESC' ? 'DESC' : 'ASC'}`;
   }
+  
+  query += ', created_at DESC';
 
   try {
     const db = await connectToDatabase();
