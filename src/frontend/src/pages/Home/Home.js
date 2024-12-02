@@ -18,7 +18,7 @@ function Home() {
       setLoading(true);
       try {
         const data = await getFilteredProducts();
-        setProducts(data.slice(0, 10)); // Solo toma los primeros 10 productos para el preview
+        setProducts(data.slice(0, 5));
       } catch (error) {
         console.error('Error obteniendo productos:', error);
       } finally {
