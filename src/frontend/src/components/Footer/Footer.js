@@ -43,7 +43,7 @@ const Footer = React.forwardRef((props, ref) => (
         <MuiLink href="/producto-personalizado" color="inherit" underline="hover" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
           Personalizados
         </MuiLink>
-        <MuiLink href="/ilustraciones" color="inherit" underline="hover" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+        <MuiLink href="/ilustracion-personalizada" color="inherit" underline="hover" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
           Ilustraciones
         </MuiLink>
       </Stack>
