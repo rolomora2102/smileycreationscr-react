@@ -20,8 +20,12 @@ import ProductCard from '../../components/ProductCard/ProductCard';
 import ProductFormModal from '../../components/ProductForm/ProductFormModal';
 import { getFilteredProducts, getProductTypes, deleteProduct } from '../../services/productService';
 import { verifyToken } from '../../services/authService';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 function Products() {
+   
+  const navigate = useNavigate(); 
+  const location = useLocation(); // <-- Obtener la ubicación actual
   const [isAdmin, setIsAdmin] = useState(false);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -34,6 +38,7 @@ function Products() {
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -52,11 +57,23 @@ function Products() {
     checkAdminStatus();
   }, []);
 
-  useEffect(() => {
+      // En tu componente Products (src/pages/Products/Products.jsx)
+   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const data = await getFilteredProducts(tipo, orderBy, orderDirection);
+        const searchParams = new URLSearchParams(location.search);
+        const urlTipo = searchParams.get('tipo') || '';
+        
+        // 🚨 Sincronizar estado con URL
+        setTipo(urlTipo);
+        
+        const data = await getFilteredProducts(
+          urlTipo, 
+          orderBy, 
+          orderDirection
+        );
+        
         setProducts(data);
         setFilteredProducts(data);
       } catch (error) {
@@ -65,8 +82,9 @@ function Products() {
         setLoading(false);
       }
     };
+    
     fetchProducts();
-  }, [tipo, orderBy, orderDirection]);
+  }, [location.search, orderBy, orderDirection]); // 🚨 Añadir dependencia
 
   useEffect(() => {
     const fetchTypes = async () => {
@@ -115,6 +133,15 @@ function Products() {
     } catch (error) {
       console.error('Error refrescando productos:', error);
     }
+  };
+
+// 🚨 Nueva función para manejar cambios de filtro
+  const handleFilterChange = (newTipo) => {
+    const newSearchParams = new URLSearchParams();
+    if (newTipo) newSearchParams.set('tipo', newTipo);
+    
+    // 🚨 Navegar a nueva URL
+    navigate(`/productos?${newSearchParams.toString()}`);
   };
 
   const toggleDrawer = (open) => () => {
@@ -180,7 +207,7 @@ function Products() {
           }}
           sx={{ flex: 1, mr: 2 }}
         />
-        <Button variant="outlined" startIcon={<FilterListIcon />} onClick={toggleDrawer(true)}>
+        <Button variant="contained" startIcon={<FilterListIcon />} onClick={toggleDrawer(true)}>
           Filtros
         </Button>
       </Box>
@@ -203,15 +230,20 @@ function Products() {
           </IconButton>
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Tipo</InputLabel>
-            <Select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-              <MenuItem value="">Todos</MenuItem>
-              {tipos.map((tipo) => (
-                <MenuItem key={tipo} value={tipo}>
-                  {tipo}
-                </MenuItem>
-              ))}
-            </Select>
+            <Select
+              value={tipo}
+                  onChange={(e) => handleFilterChange(e.target.value)} // 🚨 Usar nueva función
+                  label="Tipo"
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  {tipos.map((tipoItem) => (
+                    <MenuItem key={tipoItem} value={tipoItem}>
+                      {tipoItem}
+                    </MenuItem>
+                  ))}
+                </Select>
           </FormControl>
+
 
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Ordenar por</InputLabel>

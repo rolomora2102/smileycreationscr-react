@@ -1,20 +1,38 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Menu, MenuItem, Badge, Button, Snackbar } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { 
+  AppBar, 
+  Toolbar, 
+  IconButton, 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Menu, 
+  MenuItem, 
+  Badge, 
+  Button, 
+  Snackbar,
+  Collapse
+} from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Link, useNavigate } from 'react-router-dom';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CartModal from '../Cart/CartModal';
 import { useCart } from '../../contexts/CartContext';
 import { getProductTypes } from '../../services/productService';
 import logo from '../../Logo.png';
 
-function Navbar({ scrollToFooter  }) {
+function Navbar({ scrollToFooter }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { notification, closeNotification, getTotalItems } = useCart();
   const [anchorEl, setAnchorEl] = useState(null);
   const [tipos, setTipos] = useState([]);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchTypes = async () => {
@@ -37,11 +55,6 @@ function Navbar({ scrollToFooter  }) {
     setAnchorEl(null);
   };
 
-  const handleFilterByType = (tipo) => {
-    navigate(`/?tipo=${tipo}`);
-    handleMenuClose();
-  };
-
   return (
     <>
       <AppBar position="sticky" color="primary" sx={{ zIndex: 1300 }}>
@@ -50,15 +63,41 @@ function Navbar({ scrollToFooter  }) {
             <img src={logo} alt="Mi Tienda Logo" style={{ height: 40, cursor: 'pointer' }} />
           </Link>
 
-          {/* Links a secciones principales */}
+          {/* Menú Desktop */}
           <Button
-            color="inherit"
-            component={Link}
-            to="/productos"
-            sx={{ display: { xs: 'none', sm: 'inline-flex' }, marginRight: 2 }}
-          >
-            Productos
-          </Button>
+              color="inherit"
+              onClick={handleMenuOpen}
+              sx={{ display: { xs: 'none', sm: 'inline-flex' }, marginRight: 2 }}
+            >
+              Productos
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem 
+                onClick={() => {
+                  navigate("/productos", { replace: true });  
+                  handleMenuClose();
+                }}
+              >
+                Todos
+              </MenuItem>
+              {tipos.map((tipo) => (
+                <MenuItem 
+                  key={tipo}
+                  onClick={() => {
+                    navigate(`/productos?tipo=${tipo}`, { 
+                      replace: location.pathname === "/productos" 
+                    });
+                    handleMenuClose();
+                  }}
+                >
+                  {tipo}
+                </MenuItem>
+              ))}
+            </Menu>
           <Button
             color="inherit"
             component={Link}
@@ -73,14 +112,14 @@ function Navbar({ scrollToFooter  }) {
             to="/ilustracion-personalizada"
             sx={{ display: { xs: 'none', sm: 'inline-flex' }, marginRight: 2 }}
           >
-            Ilustracion Personalizada
+            Ilustración Personalizada
           </Button>
 
           <Button color="inherit" onClick={scrollToFooter}>
             Contacto
           </Button>
 
-          {/* Ícono de carrito en móvil */}
+          {/* Carrito móvil */}
           <IconButton
             color="inherit"
             onClick={() => setCartOpen(true)}
@@ -91,10 +130,9 @@ function Navbar({ scrollToFooter  }) {
             </Badge>
           </IconButton>
 
-          {/* Menú hamburguesa en móvil */}
+          {/* Menú hamburguesa móvil */}
           <IconButton
             color="inherit"
-            aria-label="open drawer"
             edge="start"
             onClick={() => setDrawerOpen(true)}
             sx={{ display: { xs: 'block', sm: 'none' }, marginTop: 1 }}
@@ -102,7 +140,7 @@ function Navbar({ scrollToFooter  }) {
             <MenuIcon />
           </IconButton>
 
-          {/* Carrito para pantallas grandes */}
+          {/* Carrito desktop */}
           <Button
             color="inherit"
             onClick={() => setCartOpen(true)}
@@ -116,15 +154,49 @@ function Navbar({ scrollToFooter  }) {
         </Toolbar>
       </AppBar>
 
-      {/* Drawer para menú hamburguesa en móvil */}
+      {/* Drawer móvil */}
       <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <List>
           <ListItem button component={Link} to="/" onClick={() => setDrawerOpen(false)}>
             <ListItemText primary="Inicio" />
           </ListItem>
-          <ListItem button component={Link} to="/productos" onClick={() => setDrawerOpen(false)}>
+          
+          <ListItem button onClick={() => setMobileProductsOpen(!mobileProductsOpen)}>
             <ListItemText primary="Productos" />
+            {mobileProductsOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
+          
+          <Collapse in={mobileProductsOpen} timeout="auto" unmountOnExit>
+            <List disablePadding>
+
+            <ListItem 
+              button 
+              sx={{ pl: 4 }}
+              onClick={() => {
+                navigate("/productos", { replace: true }); // 🚨 Mismo fix
+                setDrawerOpen(false);
+              }}
+            >
+              <ListItemText primary="Todos" />
+            </ListItem>
+            {tipos.map((tipo) => (
+              <ListItem 
+                key={tipo}
+                button 
+                sx={{ pl: 4 }}
+                onClick={() => {
+                  navigate(`/productos?tipo=${tipo}`, {
+                    replace: location.pathname === "/productos" // 🚨 Condición clave
+                  });
+                  setDrawerOpen(false);
+                }}
+              >
+                <ListItemText primary={tipo} />
+              </ListItem>
+            ))}
+            </List>
+          </Collapse>
+
           <ListItem button component={Link} to="/producto-personalizado" onClick={() => setDrawerOpen(false)}>
             <ListItemText primary="Personalizados" />
           </ListItem>
@@ -137,10 +209,8 @@ function Navbar({ scrollToFooter  }) {
         </List>
       </Drawer>
 
-      {/* Modal del carrito */}
       <CartModal open={cartOpen} onClose={() => setCartOpen(false)} />
-
-      {/* Snackbar de notificación */}
+      
       <Snackbar
         open={notification}
         autoHideDuration={3000}
