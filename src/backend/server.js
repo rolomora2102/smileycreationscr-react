@@ -1,5 +1,5 @@
 require('dotenv').config();
-const corsConfig = require('../backend/src/middlewere/corsConfig')
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
@@ -9,9 +9,14 @@ const PORT = 3001;
 // Configuración de CORS
 
 // change to 'http://localhost:3000' for Local dev
-app.use(cors({
+
+const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://smileycreationscr.com', 'https://admin.smileycreationscr.com'] 
+    ? [
+        'https://smileycreationscr.com',
+        'https://www.smileycreationscr.com', // ¡Nuevo!
+        'https://admin.smileycreationscr.com'
+      ] 
     : 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -21,13 +26,12 @@ app.use(cors({
     'X-Requested-With', 
     'Accept'
   ]
-}));
+};
 
 app.use(express.json());
 app.use(cookieParser()); 
-app.use((req, res, next) => {
-    corsConfig(req, res, next);
-});
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Manejo global de preflight
 
 // Ruta de health check
 app.get('/health', (req, res) => {
