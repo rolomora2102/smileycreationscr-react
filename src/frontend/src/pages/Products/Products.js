@@ -152,7 +152,9 @@ function Products() {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
     setFilteredProducts(
-      products.filter((product) => product.name.toLowerCase().includes(query))
+      products.filter((product) => product.name.toLowerCase().includes(query) ||
+            product.description.toLowerCase().includes(query) ||
+            product.tipo.toLowerCase().includes(query))
     );
   };
 

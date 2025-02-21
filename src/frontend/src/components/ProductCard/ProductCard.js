@@ -37,17 +37,19 @@ function ProductCard({ product, onDelete, onEdit, isAdmin }) {
           },
         }}
       >
-        <CardMedia
-          component="img"
-          image={product.image_url}
-          alt={product.name}
-          sx={{
-            width: '100%',
-            height: '170px', // Altura fija para imágenes
-            objectFit: 'contain', // Contiene la imagen sin cortarla
-            objectPosition: 'center', // Centra la imagen
-          }}
-        />
+        <Link to={`/producto/${product.id}`} sx={{ display: 'block' }}>
+            <CardMedia
+              component="img"
+              image={product.image_url} 
+              alt={product.name}
+              sx={{
+                width: '100%',
+                height: '170px', // Altura fija para imágenes
+                objectFit: 'contain', // Contiene la imagen sin cortarla
+                objectPosition: 'center', // Centra la imagen
+              }}
+            />
+        </Link>
         <CardContent sx={{ textAlign: 'center', flexGrow: 1 }}>
           <Typography
             gutterBottom
@@ -84,14 +86,6 @@ function ProductCard({ product, onDelete, onEdit, isAdmin }) {
         <CardActions sx={{ justifyContent: 'center' }}>
           <Button size="small" variant="contained" color="primary" onClick={() => addToCart(product)}>
             Agregar al carrito
-          </Button>
-          <Button
-            size="small"
-            color="secondary"
-            component={Link}
-            to={`/producto/${product.id}`}
-          >
-            Ver Más
           </Button>
           {isAdmin && (
             <Box>
